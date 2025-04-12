@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_4185b736eb78a53b8083519f54005ab5 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_4185b736eb78a53b8083519f54005ab5" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_4185b736eb78a53b8083519f54005ab5 = L.map(
+                "map_4185b736eb78a53b8083519f54005ab5",
+                {
+                    center: [36.5, 127.5],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 7,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_5ef7126e173011f86701023f27d5f8ed = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e", "detectRetina": false, "maxNativeZoom": 20, "maxZoom": 20, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abcd", "tms": false}
+            );
+        
+    
+            tile_layer_5ef7126e173011f86701023f27d5f8ed.addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+            var circle_marker_bcb514016e9ee63d2c766df3af2b3834 = L.circleMarker(
+                [37.5665, 126.978],
+                {"bubblingMouseEvents": true, "color": "#00C851", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#00C851", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 15, "stroke": true, "weight": 2}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+        var popup_c989d6ba99df66478110d3ff4c00baf6 = L.popup({"maxWidth": 200});
+
+        
+            
+                var html_14cf6dd13fbd8192224adfc894a11f73 = $(`<div id="html_14cf6dd13fbd8192224adfc894a11f73" style="width: 100.0%; height: 100.0%;">                 <div style="font-family: 'Malgun Gothic', sans-serif;">                     <h4>서울</h4>                     <p>총 폐교: 7개</p>                     <p>최근 폐교: 6개</p>                     <p>미활용: 6개</p>                 </div>                 </div>`)[0];
+                popup_c989d6ba99df66478110d3ff4c00baf6.setContent(html_14cf6dd13fbd8192224adfc894a11f73);
+            
+        
+
+        circle_marker_bcb514016e9ee63d2c766df3af2b3834.bindPopup(popup_c989d6ba99df66478110d3ff4c00baf6)
+        ;
+
+        
+    
+    
+            var marker_7217c5e8dd100c0d46d92fce39e47148 = L.marker(
+                [37.5665, 126.978],
+                {}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+            var div_icon_1a60ec3cf6815604ef3433650e42837d = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"font-size: 12px; font-weight: bold;\"\u003e\uc11c\uc6b8\u003c/div\u003e", "iconAnchor": [50, 0], "iconSize": [100, 20]});
+            marker_7217c5e8dd100c0d46d92fce39e47148.setIcon(div_icon_1a60ec3cf6815604ef3433650e42837d);
+        
+    
+            var circle_marker_24d0b36427da0c2465b7c6a974f3e4d9 = L.circleMarker(
+                [35.1796, 129.0756],
+                {"bubblingMouseEvents": true, "color": "#ff4444", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ff4444", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 15, "stroke": true, "weight": 2}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+        var popup_d22d218e0adb6e9c2cdac68bb2297071 = L.popup({"maxWidth": 200});
+
+        
+            
+                var html_b18cf92ab1b9ac57736b84ca065c0599 = $(`<div id="html_b18cf92ab1b9ac57736b84ca065c0599" style="width: 100.0%; height: 100.0%;">                 <div style="font-family: 'Malgun Gothic', sans-serif;">                     <h4>부산</h4>                     <p>총 폐교: 48개</p>                     <p>최근 폐교: 17개</p>                     <p>미활용: 2개</p>                 </div>                 </div>`)[0];
+                popup_d22d218e0adb6e9c2cdac68bb2297071.setContent(html_b18cf92ab1b9ac57736b84ca065c0599);
+            
+        
+
+        circle_marker_24d0b36427da0c2465b7c6a974f3e4d9.bindPopup(popup_d22d218e0adb6e9c2cdac68bb2297071)
+        ;
+
+        
+    
+    
+            var marker_8245e73a2f07ed765d203d7650c78e75 = L.marker(
+                [35.1796, 129.0756],
+                {}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+            var div_icon_ef1c5844b2c6db42d7d2be9d73826aac = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"font-size: 12px; font-weight: bold;\"\u003e\ubd80\uc0b0\u003c/div\u003e", "iconAnchor": [50, 0], "iconSize": [100, 20]});
+            marker_8245e73a2f07ed765d203d7650c78e75.setIcon(div_icon_ef1c5844b2c6db42d7d2be9d73826aac);
+        
+    
+            var circle_marker_2eeed523cb98aeae5a8f388274e50214 = L.circleMarker(
+                [35.8714, 128.6014],
+                {"bubblingMouseEvents": true, "color": "#ffa700", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffa700", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 15, "stroke": true, "weight": 2}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+        var popup_dd78f3acb96e053305690b2a0d65437f = L.popup({"maxWidth": 200});
+
+        
+            
+                var html_588306b73c055d863ab0c3e3af0500ae = $(`<div id="html_588306b73c055d863ab0c3e3af0500ae" style="width: 100.0%; height: 100.0%;">                 <div style="font-family: 'Malgun Gothic', sans-serif;">                     <h4>대구</h4>                     <p>총 폐교: 49개</p>                     <p>최근 폐교: 3개</p>                     <p>미활용: 0개</p>                 </div>                 </div>`)[0];
+                popup_dd78f3acb96e053305690b2a0d65437f.setContent(html_588306b73c055d863ab0c3e3af0500ae);
+            
+        
+
+        circle_marker_2eeed523cb98aeae5a8f388274e50214.bindPopup(popup_dd78f3acb96e053305690b2a0d65437f)
+        ;
+
+        
+    
+    
+            var marker_8107eef6b9d781a6df083f9b10971ab3 = L.marker(
+                [35.8714, 128.6014],
+                {}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+            var div_icon_cba252ed3ac6870a09d58dd232f25278 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"font-size: 12px; font-weight: bold;\"\u003e\ub300\uad6c\u003c/div\u003e", "iconAnchor": [50, 0], "iconSize": [100, 20]});
+            marker_8107eef6b9d781a6df083f9b10971ab3.setIcon(div_icon_cba252ed3ac6870a09d58dd232f25278);
+        
+    
+            var circle_marker_bddf0481c30e4d8a3c368aa3801ce517 = L.circleMarker(
+                [37.4563, 126.7052],
+                {"bubblingMouseEvents": true, "color": "#ffa700", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffa700", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 15, "stroke": true, "weight": 2}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+        var popup_9dcb8097a0c5355ce2868c6825be6d3a = L.popup({"maxWidth": 200});
+
+        
+            
+                var html_feb417fbff9ea2a166e793f6118d448b = $(`<div id="html_feb417fbff9ea2a166e793f6118d448b" style="width: 100.0%; height: 100.0%;">                 <div style="font-family: 'Malgun Gothic', sans-serif;">                     <h4>인천</h4>                     <p>총 폐교: 59개</p>                     <p>최근 폐교: 5개</p>                     <p>미활용: 8개</p>                 </div>                 </div>`)[0];
+                popup_9dcb8097a0c5355ce2868c6825be6d3a.setContent(html_feb417fbff9ea2a166e793f6118d448b);
+            
+        
+
+        circle_marker_bddf0481c30e4d8a3c368aa3801ce517.bindPopup(popup_9dcb8097a0c5355ce2868c6825be6d3a)
+        ;
+
+        
+    
+    
+            var marker_8759f897c180f7d3fcf3f8d9eef0ba4d = L.marker(
+                [37.4563, 126.7052],
+                {}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+            var div_icon_f2085ce2b861c3aa24809a1841fe16fd = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"font-size: 12px; font-weight: bold;\"\u003e\uc778\ucc9c\u003c/div\u003e", "iconAnchor": [50, 0], "iconSize": [100, 20]});
+            marker_8759f897c180f7d3fcf3f8d9eef0ba4d.setIcon(div_icon_f2085ce2b861c3aa24809a1841fe16fd);
+        
+    
+            var circle_marker_5d0c33f99ee1e95f971861c18377c454 = L.circleMarker(
+                [35.1595, 126.8526],
+                {"bubblingMouseEvents": true, "color": "#00C851", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#00C851", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 15, "stroke": true, "weight": 2}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+        var popup_995074a403bbcec562dad5d3465fec36 = L.popup({"maxWidth": 200});
+
+        
+            
+                var html_3bd627f47c8a9b29f8d49bcf0eba2b8b = $(`<div id="html_3bd627f47c8a9b29f8d49bcf0eba2b8b" style="width: 100.0%; height: 100.0%;">                 <div style="font-family: 'Malgun Gothic', sans-serif;">                     <h4>광주</h4>                     <p>총 폐교: 15개</p>                     <p>최근 폐교: 2개</p>                     <p>미활용: 0개</p>                 </div>                 </div>`)[0];
+                popup_995074a403bbcec562dad5d3465fec36.setContent(html_3bd627f47c8a9b29f8d49bcf0eba2b8b);
+            
+        
+
+        circle_marker_5d0c33f99ee1e95f971861c18377c454.bindPopup(popup_995074a403bbcec562dad5d3465fec36)
+        ;
+
+        
+    
+    
+            var marker_52b80ac459186d6e1914c5f4b372553c = L.marker(
+                [35.1595, 126.8526],
+                {}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+            var div_icon_7ce942390e23849de555587139561cee = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"font-size: 12px; font-weight: bold;\"\u003e\uad11\uc8fc\u003c/div\u003e", "iconAnchor": [50, 0], "iconSize": [100, 20]});
+            marker_52b80ac459186d6e1914c5f4b372553c.setIcon(div_icon_7ce942390e23849de555587139561cee);
+        
+    
+            var circle_marker_102d85f9fd586c9dc2c83426490042a2 = L.circleMarker(
+                [36.3504, 127.3845],
+                {"bubblingMouseEvents": true, "color": "#00C851", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#00C851", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 15, "stroke": true, "weight": 2}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+        var popup_cc126bcf474bbef753c539f30e4c2f88 = L.popup({"maxWidth": 200});
+
+        
+            
+                var html_86a6deffd6608763872f74ad1d0188da = $(`<div id="html_86a6deffd6608763872f74ad1d0188da" style="width: 100.0%; height: 100.0%;">                 <div style="font-family: 'Malgun Gothic', sans-serif;">                     <h4>대전</h4>                     <p>총 폐교: 8개</p>                     <p>최근 폐교: 1개</p>                     <p>미활용: 2개</p>                 </div>                 </div>`)[0];
+                popup_cc126bcf474bbef753c539f30e4c2f88.setContent(html_86a6deffd6608763872f74ad1d0188da);
+            
+        
+
+        circle_marker_102d85f9fd586c9dc2c83426490042a2.bindPopup(popup_cc126bcf474bbef753c539f30e4c2f88)
+        ;
+
+        
+    
+    
+            var marker_e3a519119e15b9aed66665bedada641a = L.marker(
+                [36.3504, 127.3845],
+                {}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+            var div_icon_7680062ef5267754e05e6fd842d2139e = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"font-size: 12px; font-weight: bold;\"\u003e\ub300\uc804\u003c/div\u003e", "iconAnchor": [50, 0], "iconSize": [100, 20]});
+            marker_e3a519119e15b9aed66665bedada641a.setIcon(div_icon_7680062ef5267754e05e6fd842d2139e);
+        
+    
+            var circle_marker_2f932f344cd2117c02fc3bd9a78ff520 = L.circleMarker(
+                [35.5384, 129.3114],
+                {"bubblingMouseEvents": true, "color": "#ffa700", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffa700", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 15, "stroke": true, "weight": 2}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+        var popup_f66e76e926413a351ef89dce061ddd1a = L.popup({"maxWidth": 200});
+
+        
+            
+                var html_2f6a1b879b323a24cc87b97f1a4a823c = $(`<div id="html_2f6a1b879b323a24cc87b97f1a4a823c" style="width: 100.0%; height: 100.0%;">                 <div style="font-family: 'Malgun Gothic', sans-serif;">                     <h4>울산</h4>                     <p>총 폐교: 27개</p>                     <p>최근 폐교: 5개</p>                     <p>미활용: 2개</p>                 </div>                 </div>`)[0];
+                popup_f66e76e926413a351ef89dce061ddd1a.setContent(html_2f6a1b879b323a24cc87b97f1a4a823c);
+            
+        
+
+        circle_marker_2f932f344cd2117c02fc3bd9a78ff520.bindPopup(popup_f66e76e926413a351ef89dce061ddd1a)
+        ;
+
+        
+    
+    
+            var marker_57ebb0be588bcd9d7486ba41d6826635 = L.marker(
+                [35.5384, 129.3114],
+                {}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+            var div_icon_56cfa6d5070a976ca88963f4aa6f23a4 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"font-size: 12px; font-weight: bold;\"\u003e\uc6b8\uc0b0\u003c/div\u003e", "iconAnchor": [50, 0], "iconSize": [100, 20]});
+            marker_57ebb0be588bcd9d7486ba41d6826635.setIcon(div_icon_56cfa6d5070a976ca88963f4aa6f23a4);
+        
+    
+            var circle_marker_909bd79f75aba85797b78265c2b4652f = L.circleMarker(
+                [36.48, 127.289],
+                {"bubblingMouseEvents": true, "color": "#00C851", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#00C851", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 15, "stroke": true, "weight": 2}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+        var popup_2704df30c90eb0cc81b96856e50b0f5b = L.popup({"maxWidth": 200});
+
+        
+            
+                var html_dd5d857fdae0647cebc5787c6eff5be3 = $(`<div id="html_dd5d857fdae0647cebc5787c6eff5be3" style="width: 100.0%; height: 100.0%;">                 <div style="font-family: 'Malgun Gothic', sans-serif;">                     <h4>세종</h4>                     <p>총 폐교: 13개</p>                     <p>최근 폐교: 2개</p>                     <p>미활용: 0개</p>                 </div>                 </div>`)[0];
+                popup_2704df30c90eb0cc81b96856e50b0f5b.setContent(html_dd5d857fdae0647cebc5787c6eff5be3);
+            
+        
+
+        circle_marker_909bd79f75aba85797b78265c2b4652f.bindPopup(popup_2704df30c90eb0cc81b96856e50b0f5b)
+        ;
+
+        
+    
+    
+            var marker_f00aa2ebb63cd99c8839b17aeee9a1b6 = L.marker(
+                [36.48, 127.289],
+                {}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+            var div_icon_498e3e72df40b423baad6e32a8e62c74 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"font-size: 12px; font-weight: bold;\"\u003e\uc138\uc885\u003c/div\u003e", "iconAnchor": [50, 0], "iconSize": [100, 20]});
+            marker_f00aa2ebb63cd99c8839b17aeee9a1b6.setIcon(div_icon_498e3e72df40b423baad6e32a8e62c74);
+        
+    
+            var circle_marker_069422fed84b211d855f2c675cfc8258 = L.circleMarker(
+                [37.275, 127.0],
+                {"bubblingMouseEvents": true, "color": "#ff4444", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ff4444", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 15, "stroke": true, "weight": 2}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+        var popup_426246b490c26c14c22e2f2d0c0b2a5b = L.popup({"maxWidth": 200});
+
+        
+            
+                var html_2d6bc6d8bd3a92644ba40e1fac741c03 = $(`<div id="html_2d6bc6d8bd3a92644ba40e1fac741c03" style="width: 100.0%; height: 100.0%;">                 <div style="font-family: 'Malgun Gothic', sans-serif;">                     <h4>경기</h4>                     <p>총 폐교: 183개</p>                     <p>최근 폐교: 20개</p>                     <p>미활용: 19개</p>                 </div>                 </div>`)[0];
+                popup_426246b490c26c14c22e2f2d0c0b2a5b.setContent(html_2d6bc6d8bd3a92644ba40e1fac741c03);
+            
+        
+
+        circle_marker_069422fed84b211d855f2c675cfc8258.bindPopup(popup_426246b490c26c14c22e2f2d0c0b2a5b)
+        ;
+
+        
+    
+    
+            var marker_9974fca123a76f9585f16c3064bc69da = L.marker(
+                [37.275, 127.0],
+                {}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+            var div_icon_41a0b0a77ebbcffeaac2554af98e2c39 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"font-size: 12px; font-weight: bold;\"\u003e\uacbd\uae30\u003c/div\u003e", "iconAnchor": [50, 0], "iconSize": [100, 20]});
+            marker_9974fca123a76f9585f16c3064bc69da.setIcon(div_icon_41a0b0a77ebbcffeaac2554af98e2c39);
+        
+    
+            var circle_marker_0536b6a4f6abeb49e0ca59c039aa77e0 = L.circleMarker(
+                [37.8228, 128.3445],
+                {"bubblingMouseEvents": true, "color": "#ff4444", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ff4444", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 15, "stroke": true, "weight": 2}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+        var popup_032c6b9ebcb510465761eaece554e4e2 = L.popup({"maxWidth": 200});
+
+        
+            
+                var html_8ba09d997cb30b109bd4c21b004eff79 = $(`<div id="html_8ba09d997cb30b109bd4c21b004eff79" style="width: 100.0%; height: 100.0%;">                 <div style="font-family: 'Malgun Gothic', sans-serif;">                     <h4>강원</h4>                     <p>총 폐교: 482개</p>                     <p>최근 폐교: 28개</p>                     <p>미활용: 56개</p>                 </div>                 </div>`)[0];
+                popup_032c6b9ebcb510465761eaece554e4e2.setContent(html_8ba09d997cb30b109bd4c21b004eff79);
+            
+        
+
+        circle_marker_0536b6a4f6abeb49e0ca59c039aa77e0.bindPopup(popup_032c6b9ebcb510465761eaece554e4e2)
+        ;
+
+        
+    
+    
+            var marker_b3391649411ff573bf74b5a119d4ac9d = L.marker(
+                [37.8228, 128.3445],
+                {}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+            var div_icon_6aa2be20696cb2778316d77a01ec1205 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"font-size: 12px; font-weight: bold;\"\u003e\uac15\uc6d0\u003c/div\u003e", "iconAnchor": [50, 0], "iconSize": [100, 20]});
+            marker_b3391649411ff573bf74b5a119d4ac9d.setIcon(div_icon_6aa2be20696cb2778316d77a01ec1205);
+        
+    
+            var circle_marker_8e471d313b2a95cc780bbef6175ee46a = L.circleMarker(
+                [34.816, 126.991],
+                {"bubblingMouseEvents": true, "color": "#ff4444", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ff4444", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 15, "stroke": true, "weight": 2}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+        var popup_acd506d69c58e8eea6326769204c885c = L.popup({"maxWidth": 200});
+
+        
+            
+                var html_cf386ad7a8cf91d5300b65860adcce2f = $(`<div id="html_cf386ad7a8cf91d5300b65860adcce2f" style="width: 100.0%; height: 100.0%;">                 <div style="font-family: 'Malgun Gothic', sans-serif;">                     <h4>전남</h4>                     <p>총 폐교: 844개</p>                     <p>최근 폐교: 24개</p>                     <p>미활용: 75개</p>                 </div>                 </div>`)[0];
+                popup_acd506d69c58e8eea6326769204c885c.setContent(html_cf386ad7a8cf91d5300b65860adcce2f);
+            
+        
+
+        circle_marker_8e471d313b2a95cc780bbef6175ee46a.bindPopup(popup_acd506d69c58e8eea6326769204c885c)
+        ;
+
+        
+    
+    
+            var marker_553df3b02f7e0b1501986d91785a13df = L.marker(
+                [34.816, 126.991],
+                {}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+            var div_icon_7009bfe367027cdd8d99751a245586bb = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"font-size: 12px; font-weight: bold;\"\u003e\uc804\ub0a8\u003c/div\u003e", "iconAnchor": [50, 0], "iconSize": [100, 20]});
+            marker_553df3b02f7e0b1501986d91785a13df.setIcon(div_icon_7009bfe367027cdd8d99751a245586bb);
+        
+    
+            var circle_marker_7d6b0b89a76f57576a5b225dac4edc7b = L.circleMarker(
+                [35.4606, 128.2132],
+                {"bubblingMouseEvents": true, "color": "#ff4444", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ff4444", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 15, "stroke": true, "weight": 2}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+        var popup_eb5f68fbd2160d2d2cf971aff705e714 = L.popup({"maxWidth": 200});
+
+        
+            
+                var html_aac47ce2eb87636a28bc25d5329c5a6b = $(`<div id="html_aac47ce2eb87636a28bc25d5329c5a6b" style="width: 100.0%; height: 100.0%;">                 <div style="font-family: 'Malgun Gothic', sans-serif;">                     <h4>경남</h4>                     <p>총 폐교: 586개</p>                     <p>최근 폐교: 18개</p>                     <p>미활용: 72개</p>                 </div>                 </div>`)[0];
+                popup_eb5f68fbd2160d2d2cf971aff705e714.setContent(html_aac47ce2eb87636a28bc25d5329c5a6b);
+            
+        
+
+        circle_marker_7d6b0b89a76f57576a5b225dac4edc7b.bindPopup(popup_eb5f68fbd2160d2d2cf971aff705e714)
+        ;
+
+        
+    
+    
+            var marker_4270e1e5068f6774ae7272c4a7805c63 = L.marker(
+                [35.4606, 128.2132],
+                {}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+            var div_icon_7f7e633965e29c7201ad38dda195c9dc = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"font-size: 12px; font-weight: bold;\"\u003e\uacbd\ub0a8\u003c/div\u003e", "iconAnchor": [50, 0], "iconSize": [100, 20]});
+            marker_4270e1e5068f6774ae7272c4a7805c63.setIcon(div_icon_7f7e633965e29c7201ad38dda195c9dc);
+        
+    
+            var circle_marker_2bcebf7dea20f81ac0ef7707a8c27811 = L.circleMarker(
+                [33.489, 126.5],
+                {"bubblingMouseEvents": true, "color": "#ffa700", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffa700", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 15, "stroke": true, "weight": 2}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+        var popup_436e56db94936f22459253fd2417439a = L.popup({"maxWidth": 200});
+
+        
+            
+                var html_6e1d1658bb22cc643b1932b4f4b0b22e = $(`<div id="html_6e1d1658bb22cc643b1932b4f4b0b22e" style="width: 100.0%; height: 100.0%;">                 <div style="font-family: 'Malgun Gothic', sans-serif;">                     <h4>제주</h4>                     <p>총 폐교: 35개</p>                     <p>최근 폐교: 2개</p>                     <p>미활용: 12개</p>                 </div>                 </div>`)[0];
+                popup_436e56db94936f22459253fd2417439a.setContent(html_6e1d1658bb22cc643b1932b4f4b0b22e);
+            
+        
+
+        circle_marker_2bcebf7dea20f81ac0ef7707a8c27811.bindPopup(popup_436e56db94936f22459253fd2417439a)
+        ;
+
+        
+    
+    
+            var marker_9985b7b7bbc27194d2ac956d1b5a3674 = L.marker(
+                [33.489, 126.5],
+                {}
+            ).addTo(map_4185b736eb78a53b8083519f54005ab5);
+        
+    
+            var div_icon_b38006a131f6c607d5b3d1474929e2c6 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"font-size: 12px; font-weight: bold;\"\u003e\uc81c\uc8fc\u003c/div\u003e", "iconAnchor": [50, 0], "iconSize": [100, 20]});
+            marker_9985b7b7bbc27194d2ac956d1b5a3674.setIcon(div_icon_b38006a131f6c607d5b3d1474929e2c6);
+        
+</script>
+</html>

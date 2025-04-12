@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}폐교 위험도 지도{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <h1 class="mb-4">폐교 위험도 지도</h1>
+    
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-body p-0">
+                    <!-- Embed the Folium map -->
+                    <iframe id="map-frame" src="{{ url_for('static', filename='map.html') }}" 
+                            style="width: 100%; height: 800px; border: none;"></iframe>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">위험도 범례</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <div style="width: 20px; height: 20px; background-color: #ff4444; margin-right: 10px; border-radius: 50%;"></div>
+                        <span>높은 위험 (상위 33%)</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <div style="width: 20px; height: 20px; background-color: #ffa700; margin-right: 10px; border-radius: 50%;"></div>
+                        <span>중간 위험 (중위 33%)</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div style="width: 20px; height: 20px; background-color: #00C851; margin-right: 10px; border-radius: 50%;"></div>
+                        <span>낮은 위험 (하위 33%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">지역별 통계</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>지역</th>
+                                    <th>총 폐교</th>
+                                    <th>최근 폐교</th>
+                                    <th>미활용</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for region, data in region_data.items() %}
+                                <tr style="background-color: {{ data.color }}20;">
+                                    <td>{{ region }}</td>
+                                    <td>{{ data.total_closures }}</td>
+                                    <td>{{ data.recent_closures }}</td>
+                                    <td>{{ data.unused_schools }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Function to reload the map iframe
+function reloadMap() {
+    const frame = document.getElementById('map-frame');
+    frame.src = frame.src;
+}
+
+// Reload the map when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    reloadMap();
+});
+</script>
+{% endblock %} 
