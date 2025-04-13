@@ -13,6 +13,16 @@ import folium
 from folium import plugins
 import json
 import logging
+import anthropic
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Initialize Claude client
+claude_client = anthropic.Anthropic(
+    api_key=os.getenv('ANTHROPIC_API_KEY')
+)
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -495,6 +505,36 @@ def multiculture_view():
 @app.route('/static/data/<path:filename>')
 def serve_static(filename):
     return send_from_directory('static/data', filename)
+
+@app.route('/chat')
+def chat():
+    return render_template('chat.html')
+
+@app.route('/api/chat', methods=['POST'])
+def handle_chat():
+    try:
+        data = request.get_json()
+        user_message = data.get('message', '')
+        
+        if not user_message:
+            return jsonify({'error': 'No message provided'}), 400
+
+        # Call Claude API
+        message = claude_client.messages.create(
+            model="claude-3-opus-20240229",
+            max_tokens=1000,
+            messages=[
+                {
+                    "role": "user",
+                    "content": user_message
+                }
+            ]
+        )
+
+        return jsonify({'response': message.content[0].text})
+    except Exception as e:
+        logging.error(f"Error in chat: {str(e)}")
+        return jsonify({'error': 'An error occurred while processing your request'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001) 
