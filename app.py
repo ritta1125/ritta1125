@@ -251,6 +251,7 @@ def closure_risk_map():
     try:
         # Initialize data structures
         region_data = {}
+        heatmap_data = []
         
         # Map Korean region names to CSV filenames
         region_to_file = {
@@ -299,22 +300,13 @@ def closure_risk_map():
                 'unused_schools': unused_schools,
                 'risk_score': risk_score
             }
-        
-        # Calculate risk thresholds for color coding
-        risk_scores = [data['risk_score'] for data in region_data.values()]
-        if risk_scores:
-            low_threshold = np.percentile(risk_scores, 33)
-            high_threshold = np.percentile(risk_scores, 66)
             
-            # Assign color codes
-            for region in region_data:
-                score = region_data[region]['risk_score']
-                if score <= low_threshold:
-                    region_data[region]['color'] = '#00C851'  # 낮은 위험 (green)
-                elif score <= high_threshold:
-                    region_data[region]['color'] = '#ffa700'  # 중간 위험 (orange)
-                else:
-                    region_data[region]['color'] = '#ff4444'  # 높은 위험 (red)
+            # Add coordinates and risk score to heatmap data
+            if region in KOREA_REGIONS:
+                coords = KOREA_REGIONS[region]
+                # Add multiple points for the region based on risk score
+                for _ in range(int(risk_score * 10)):  # Scale the number of points
+                    heatmap_data.append([coords['lat'], coords['lon'], risk_score])
         
         # Create a Folium map centered on South Korea
         m = folium.Map(
@@ -323,11 +315,25 @@ def closure_risk_map():
             tiles='CartoDB positron'
         )
         
+        # Add heatmap layer with custom gradient
+        if heatmap_data:
+            plugins.HeatMap(heatmap_data, 
+                          radius=25,
+                          blur=15,
+                          max_zoom=17,
+                          gradient={0.0: 'blue', 0.3: 'lime', 0.5: 'yellow', 0.7: 'orange', 1.0: 'red'}).add_to(m)
+        
         # Add markers for each region
         for region, coords in KOREA_REGIONS.items():
             if region in region_data:
                 data = region_data[region]
-                color = data['color']
+                # Calculate color based on risk score
+                if data['risk_score'] <= 0.3:
+                    color = '#00C851'  # 낮은 위험 (green)
+                elif data['risk_score'] <= 0.6:
+                    color = '#ffa700'  # 중간 위험 (orange)
+                else:
+                    color = '#ff4444'  # 높은 위험 (red)
                 
                 # Create popup content
                 popup_content = f"""
