@@ -383,77 +383,91 @@ def closure_risk_map():
 @app.route('/multiculture')
 def multiculture_view():
     try:
-        # CSV 파일 경로 확인
-        csv_path = 'data/raw/multiculture.csv'
-        if not os.path.exists(csv_path):
+        # CSV 파일 경로
+        filepath = os.path.join('data', 'raw', 'multiculture.csv')
+        
+        # 파일이 존재하는지 확인
+        if not os.path.exists(filepath):
             return render_template('multiculture.html', 
-                                 error_message="데이터 파일을 찾을 수 없습니다. 관리자에게 문의하세요.",
-                                 table_data=[],
-                                 map_data=[])
+                                error="데이터 파일이 존재하지 않습니다.",
+                                table_data=[],
+                                map_data=[])
         
-        # CSV 파일 읽기
-        df = pd.read_csv(csv_path, encoding='cp949', skiprows=1)  # 첫 번째 행 건너뛰기
-        print("Raw data shape:", df.shape)
-        print("Raw data columns:", df.columns.tolist())
+        # 여러 인코딩으로 시도
+        encodings = ['utf-8', 'cp949', 'euc-kr', 'latin1']
+        df = None
         
-        # 데이터 전처리
-        # 빈 문자열을 NaN으로 변환
-        df = df.replace('', np.nan)
-        # 모든 요소가 NaN인 행 제거
-        df = df.dropna(how='all')
+        for encoding in encodings:
+            try:
+                df = pd.read_csv(filepath, encoding=encoding)
+                break
+            except UnicodeDecodeError:
+                continue
         
-        print("Processed data shape:", df.shape)
-        print("Processed data columns:", df.columns.tolist())
-        
-        # 숫자형 컬럼 변환
-        numeric_columns = df.columns[1:]  # 첫 번째 컬럼(지역)을 제외한 모든 컬럼
-        for col in numeric_columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce')
-        
-        # 전처리된 데이터 저장
-        processed_data_path = 'data/processed/processed_multiculture_data.csv'
-        os.makedirs(os.path.dirname(processed_data_path), exist_ok=True)
-        df.to_csv(processed_data_path, index=False, encoding='utf-8')
+        if df is None:
+            return render_template('multiculture.html', 
+                                error="데이터 파일을 읽을 수 없습니다. 인코딩 문제가 발생했습니다.",
+                                table_data=[],
+                                map_data=[])
         
         # 테이블 데이터 준비
         table_data = df.to_dict('records')
-        print("Table data sample:", table_data[:2] if table_data else "No data")
         
         # 지도 데이터 준비
-        # '전체'가 포함된 컬럼 찾기
-        total_column = None
-        for col in df.columns:
-            if '전체' in col:
-                total_column = col
-                break
-        
-        if total_column:
-            map_data = df[['행정구역(읍면동)별(1)', total_column]].copy()
-            map_data.columns = ['지역', '값']
-            # NaN 값 제거
-            map_data = map_data.dropna()
-            # 값 컬럼을 숫자형으로 변환
-            map_data['값'] = pd.to_numeric(map_data['값'], errors='coerce')
-            # NaN 값이 있는 행 제거
-            map_data = map_data.dropna()
-        else:
-            map_data = pd.DataFrame(columns=['지역', '값'])
-        
-        print("Map data sample:", map_data.head().to_dict('records') if not map_data.empty else "No map data")
+        map_data = []
+        for _, row in df.iterrows():
+            try:
+                region = row['행정구역(읍면동)별(1)']
+                if region == '전국':
+                    continue
+                    
+                # 지역별 좌표 매핑
+                region_coords = {
+                    '서울특별시': {'lat': 37.5665, 'lng': 126.9780},
+                    '부산광역시': {'lat': 35.1796, 'lng': 129.0756},
+                    '대구광역시': {'lat': 35.8714, 'lng': 128.6014},
+                    '인천광역시': {'lat': 37.4563, 'lng': 126.7052},
+                    '광주광역시': {'lat': 35.1595, 'lng': 126.8526},
+                    '대전광역시': {'lat': 36.3504, 'lng': 127.3845},
+                    '울산광역시': {'lat': 35.5384, 'lng': 129.3114},
+                    '세종특별자치시': {'lat': 36.4877, 'lng': 127.2817},
+                    '경기도': {'lat': 37.4138, 'lng': 127.5183},
+                    '강원도': {'lat': 37.8228, 'lng': 128.1555},
+                    '충청북도': {'lat': 36.6372, 'lng': 127.4890},
+                    '충청남도': {'lat': 36.5184, 'lng': 126.8000},
+                    '전라북도': {'lat': 35.7175, 'lng': 127.1530},
+                    '전라남도': {'lat': 34.8679, 'lng': 126.9910},
+                    '경상북도': {'lat': 36.4919, 'lng': 128.8889},
+                    '경상남도': {'lat': 35.4606, 'lng': 128.2132},
+                    '제주특별자치도': {'lat': 33.4996, 'lng': 126.5312}
+                }
+                
+                if region in region_coords:
+                    coords = region_coords[region]
+                    # 다문화 가정 비율 계산 (결혼이민자 및 귀화자 등 / 전체 인구)
+                    total_population = float(row['결혼이민자 및 귀화자 등'])
+                    multicultural_ratio = total_population / 1000000  # 백만명당 비율로 계산
+                    
+                    map_data.append({
+                        '지역': region,
+                        'lat': coords['lat'],
+                        'lng': coords['lng'],
+                        '값': multicultural_ratio
+                    })
+            except (ValueError, TypeError, KeyError) as e:
+                print(f"Error processing row: {e}")
+                continue
         
         return render_template('multiculture.html', 
-                             table_data=table_data,
-                             map_data=map_data.to_dict('records'))
-                             
+                            table_data=table_data,
+                            map_data=map_data)
+    
     except Exception as e:
-        print(f"Error loading data: {str(e)}")
-        print(f"Error type: {type(e)}")
-        import traceback
-        print(f"Traceback: {traceback.format_exc()}")
+        print(f"Error in multiculture_view: {str(e)}")
         return render_template('multiculture.html', 
-                             error_message=f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}",
-                             table_data=[],
-                             map_data=[])
+                            error=f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}",
+                            table_data=[],
+                            map_data=[])
 
 @app.route('/static/data/<path:filename>')
 def serve_static(filename):

@@ -25,19 +25,27 @@
         <table id="multicultureTable" class="table table-striped table-bordered">
             <thead>
                 <tr>
-                    {% if table_data and table_data[0] %}
-                        {% for key in table_data[0].keys() %}
-                            <th>{{ key }}</th>
-                        {% endfor %}
-                    {% endif %}
+                    <th>지역</th>
+                    <th>결혼이민자 및 귀화자 등</th>
+                    <th>결혼이민자</th>
+                    <th>귀화자 등</th>
+                    <th>자녀</th>
+                    <th>기타동거인</th>
+                    <th>국내출생</th>
+                    <th>외국인</th>
                 </tr>
             </thead>
             <tbody>
-                {% for row in table_data %}
+                {% for item in table_data %}
                 <tr>
-                    {% for value in row.values() %}
-                        <td>{{ value }}</td>
-                    {% endfor %}
+                    <td>{{ item['행정구역(읍면동)별(1)'] }}</td>
+                    <td>{{ item['결혼이민자 및 귀화자 등'] }}</td>
+                    <td>{{ item['결혼이민자'] }}</td>
+                    <td>{{ item['귀화자 등'] }}</td>
+                    <td>{{ item['자녀'] }}</td>
+                    <td>{{ item['기타동거인'] }}</td>
+                    <td>{{ item['국내출생'] }}</td>
+                    <td>{{ item['외국인'] }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
