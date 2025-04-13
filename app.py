@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify, request, send_from_directory
 from src.analysis.analyzer import Analyzer
 from src.visualization.visualizer import Visualizer
+from src.data_processing.data_processor import DataProcessor
 import os
 import pandas as pd
 import glob
@@ -10,6 +11,12 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 import folium
 from folium import plugins
+import json
+import logging
+
+# 로깅 설정
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__, static_folder='static')
 app.config['SECRET_KEY'] = 'your-secret-key-here'  # Change this in production
@@ -17,7 +24,8 @@ app.config['UPLOAD_FOLDER'] = 'data/raw'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 app.debug = True  # Enable debug mode
 
-# Initialize analyzers
+# Initialize data processor, analyzers, and visualizer
+data_processor = DataProcessor()
 analyzer = Analyzer()
 visualizer = Visualizer()
 
@@ -63,11 +71,26 @@ def index():
 
 @app.route('/api/analysis')
 def get_analysis():
-    """분석 결과 API"""
+    """분석 결과 API 엔드포인트"""
     try:
-        results = analyzer.run()
-        return jsonify(results)
+        # 분석 실행
+        analysis_results = analyzer.run()
+        
+        # 대시보드에 필요한 데이터만 추출
+        dashboard_data = {
+            'risk_distribution': analysis_results['closure_risk_analysis']['risk_distribution'],
+            'regional_stats': analysis_results['closure_risk_analysis']['regional_stats'],
+            'correlation': {
+                'coefficient': analysis_results['correlation']['coefficient'],
+                'details': analysis_results['correlation']['details']
+            },
+            'time_series': analysis_results['closure_risk_analysis']['time_series']
+        }
+        
+        return jsonify(dashboard_data)
+        
     except Exception as e:
+        logger.error(f"Error in analysis API: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/visualization')

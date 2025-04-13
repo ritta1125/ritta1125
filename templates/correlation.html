@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}상관관계 분석{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+<style>
+    .correlation-container { margin: 20px 0; }
+    .chart-container { margin: 20px 0; height: 400px; }
+    .correlation-info {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-4">폐교 위험 지역과 다문화 가정 분포 상관관계 분석</h1>
+    
+    {% if error_message %}
+    <div class="alert alert-danger" role="alert">
+        {{ error_message }}
+    </div>
+    {% else %}
+    <div class="correlation-info">
+        <h3>상관관계 분석 결과</h3>
+        <p>피어슨 상관계수: {{ "%.3f"|format(correlation_data.pearson_correlation) }}</p>
+        <p>해석: {{ correlation_data.interpretation }}</p>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="scatterChart"></canvas>
+    </div>
+
+    <div class="table-container">
+        <h3>지역별 데이터</h3>
+        <table id="correlationTable" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>지역</th>
+                    <th>최근 5년간 폐교 수</th>
+                    <th>다문화 가정 비율 (백만명당)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in scatter_data %}
+                <tr>
+                    <td>{{ item.region }}</td>
+                    <td>{{ item.closures }}</td>
+                    <td>{{ "%.2f"|format(item.multicultural_ratio) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    $(document).ready(function() {
+        // DataTable 초기화
+        $('#correlationTable').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.11.5/i18n/ko.json"
+            }
+        });
+
+        // 산점도 차트 생성
+        var ctx = document.getElementById('scatterChart').getContext('2d');
+        var scatterData = {{ scatter_data|tojson|safe }};
+        
+        var data = {
+            datasets: [{
+                label: '지역별 데이터',
+                data: scatterData.map(item => ({
+                    x: item.multicultural_ratio,
+                    y: item.closures,
+                    region: item.region
+                })),
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        var config = {
+            type: 'scatter',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: '다문화 가정 비율 (백만명당)'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: '최근 5년간 폐교 수'
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw.region + ': (' + 
+                                       context.raw.x.toFixed(2) + ', ' + 
+                                       context.raw.y + ')';
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        new Chart(ctx, config);
+    });
+</script>
+{% endblock %} 

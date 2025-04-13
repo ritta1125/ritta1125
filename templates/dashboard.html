@@ -4,89 +4,89 @@
 
 {% block extra_css %}
 <link href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css" rel="stylesheet">
+<style>
+    .dashboard-container {
+        padding: 20px;
+    }
+    .card {
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .card-header {
+        background-color: #f8f9fa;
+        font-weight: bold;
+    }
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin-bottom: 20px;
+    }
+    .correlation-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .correlation-chart {
+        flex: 1;
+        min-height: 400px;
+    }
+    .correlation-info {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+    }
+    .time-series-container {
+        margin-top: 20px;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12">
-        <h2 class="mb-4">대시보드</h2>
-    </div>
-</div>
-
-<div class="row">
-    <!-- 위험도 분포 지도 -->
-    <div class="col-md-8">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">폐교 위험도 분포</h5>
-            </div>
-            <div class="card-body">
-                <div id="riskMap" style="height: 400px;"></div>
+<div class="dashboard-container">
+    <h2 class="mb-4">대시보드</h2>
+    
+    <!-- 폐교 위험도 분포 -->
+    <div class="card">
+        <div class="card-header">폐교 위험도 분포</div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="riskDistributionChart"></canvas>
             </div>
         </div>
     </div>
-    
-    <!-- 요약 통계 -->
-    <div class="col-md-4">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">요약 통계</h5>
+
+    <!-- 지역별 통계 -->
+    <div class="card">
+        <div class="card-header">지역별 통계</div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="regionalStatsChart"></canvas>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-6">
-                        <div class="stat-card">
-                            <h6>고위험 지역</h6>
-                            <h3 id="highRiskCount">-</h3>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="stat-card">
-                            <h6>다문화 비율</h6>
-                            <h3 id="multiculturalRatio">-</h3>
-                        </div>
-                    </div>
+        </div>
+    </div>
+
+    <!-- 상관관계 분석 -->
+    <div class="card">
+        <div class="card-header">상관관계 분석</div>
+        <div class="card-body">
+            <div class="correlation-container">
+                <div class="correlation-chart">
+                    <canvas id="correlationChart"></canvas>
+                </div>
+                <div class="correlation-info">
+                    <h5>상관관계 분석 결과</h5>
+                    <p id="correlationResult"></p>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="row">
-    <!-- 상관관계 분석 -->
-    <div class="col-md-6">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">상관관계 분석</h5>
-            </div>
-            <div class="card-body">
-                <div id="correlationPlot" style="height: 300px;"></div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 지역별 비교 -->
-    <div class="col-md-6">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">지역별 비교</h5>
-            </div>
-            <div class="card-body">
-                <div id="regionalComparison" style="height: 300px;"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
     <!-- 시계열 분석 -->
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">시계열 분석</h5>
-            </div>
-            <div class="card-body">
-                <div id="timeSeriesPlot" style="height: 300px;"></div>
+    <div class="card">
+        <div class="card-header">시계열 분석</div>
+        <div class="card-body">
+            <div class="time-series-container">
+                <canvas id="timeSeriesChart"></canvas>
             </div>
         </div>
     </div>
@@ -96,99 +96,168 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // 데이터 로드 및 시각화
-    $(document).ready(function() {
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM Content Loaded');
+        
         // API에서 데이터 가져오기
-        $.get('/api/analysis', function(data) {
-            // 통계 업데이트
-            $('#highRiskCount').text(data.high_risk_areas.length);
-            $('#multiculturalRatio').text(
-                (data.multicultural_analysis.avg_ratio * 100).toFixed(1) + '%'
-            );
-            
-            // 시각화 생성
-            createCorrelationPlot(data.correlation);
-            createRegionalComparison(data.regional_stats);
-            createTimeSeriesPlot(data.time_series);
-        });
-        
-        // 지도 생성
-        createRiskMap();
+        fetch('/api/analysis')
+            .then(response => {
+                console.log('API Response:', response);
+                return response.json();
+            })
+            .then(data => {
+                console.log('API Data:', data);
+                
+                if (!data) {
+                    console.error('No data received from API');
+                    return;
+                }
+                
+                // 폐교 위험도 분포 차트
+                if (data.risk_distribution && data.risk_distribution.labels && data.risk_distribution.values) {
+                    const riskCtx = document.getElementById('riskDistributionChart');
+                    if (riskCtx) {
+                        new Chart(riskCtx.getContext('2d'), {
+                            type: 'bar',
+                            data: {
+                                labels: data.risk_distribution.labels,
+                                datasets: [{
+                                    label: '학교 수',
+                                    data: data.risk_distribution.values,
+                                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                                    borderColor: 'rgba(54, 162, 235, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        title: {
+                                            display: true,
+                                            text: '학교 수'
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+                
+                // 지역별 통계 차트
+                if (data.regional_stats && data.regional_stats.labels && data.regional_stats.values) {
+                    const regionalCtx = document.getElementById('regionalStatsChart');
+                    if (regionalCtx) {
+                        new Chart(regionalCtx.getContext('2d'), {
+                            type: 'bar',
+                            data: {
+                                labels: data.regional_stats.labels,
+                                datasets: [{
+                                    label: '평균 위험 지수',
+                                    data: data.regional_stats.values,
+                                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                                    borderColor: 'rgba(255, 99, 132, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        title: {
+                                            display: true,
+                                            text: '평균 위험 지수'
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+                
+                // 상관관계 차트
+                if (data.correlation && data.correlation.x && data.correlation.y) {
+                    const correlationCtx = document.getElementById('correlationChart');
+                    if (correlationCtx) {
+                        new Chart(correlationCtx.getContext('2d'), {
+                            type: 'scatter',
+                            data: {
+                                datasets: [{
+                                    label: '상관관계',
+                                    data: data.correlation.x.map((x, i) => ({
+                                        x: x,
+                                        y: data.correlation.y[i]
+                                    })),
+                                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    x: {
+                                        title: {
+                                            display: true,
+                                            text: '위험 지수'
+                                        }
+                                    },
+                                    y: {
+                                        title: {
+                                            display: true,
+                                            text: '위험 지수'
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+                
+                // 시계열 차트
+                if (data.time_series && data.time_series.labels && data.time_series.values) {
+                    const timeSeriesCtx = document.getElementById('timeSeriesChart');
+                    if (timeSeriesCtx) {
+                        new Chart(timeSeriesCtx.getContext('2d'), {
+                            type: 'line',
+                            data: {
+                                labels: data.time_series.labels,
+                                datasets: [{
+                                    label: '폐교 수',
+                                    data: data.time_series.values,
+                                    borderColor: 'rgba(153, 102, 255, 1)',
+                                    backgroundColor: 'rgba(153, 102, 255, 0.1)',
+                                    borderWidth: 2,
+                                    fill: true
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        title: {
+                                            display: true,
+                                            text: '폐교 수'
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
     });
-    
-    function createRiskMap() {
-        // Leaflet 지도 생성
-        var map = L.map('riskMap').setView([36.5, 127.5], 7);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-        
-        // 위험도 데이터 표시
-        $.get('/api/visualization', function(data) {
-            // 지도에 마커 추가
-            // TODO: 실제 데이터로 구현
-        });
-    }
-    
-    function createCorrelationPlot(data) {
-        // Plotly 상관관계 그래프 생성
-        var trace = {
-            x: data.x,
-            y: data.y,
-            mode: 'markers',
-            type: 'scatter'
-        };
-        
-        var layout = {
-            title: '폐교위험도와 다문화비중의 관계',
-            xaxis: {title: '폐교위험도'},
-            yaxis: {title: '다문화비중'}
-        };
-        
-        Plotly.newPlot('correlationPlot', [trace], layout);
-    }
-    
-    function createRegionalComparison(data) {
-        // Plotly 지역별 비교 그래프 생성
-        var trace = {
-            x: data.regions,
-            y: data.values,
-            type: 'bar'
-        };
-        
-        var layout = {
-            title: '지역별 폐교위험도 비교',
-            xaxis: {title: '지역'},
-            yaxis: {title: '위험도'}
-        };
-        
-        Plotly.newPlot('regionalComparison', [trace], layout);
-    }
-    
-    function createTimeSeriesPlot(data) {
-        // Plotly 시계열 그래프 생성
-        var trace1 = {
-            x: data.years,
-            y: data.closed_schools,
-            name: '폐교 수',
-            type: 'scatter'
-        };
-        
-        var trace2 = {
-            x: data.years,
-            y: data.multicultural_students,
-            name: '다문화 학생 수',
-            type: 'scatter'
-        };
-        
-        var layout = {
-            title: '연도별 추이',
-            xaxis: {title: '연도'},
-            yaxis: {title: '수'}
-        };
-        
-        Plotly.newPlot('timeSeriesPlot', [trace1, trace2], layout);
-    }
 </script>
 {% endblock %} 
