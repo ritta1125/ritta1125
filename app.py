@@ -506,35 +506,46 @@ def multiculture_view():
 def serve_static(filename):
     return send_from_directory('static/data', filename)
 
-@app.route('/chat')
+@app.route('/chat', methods=['POST'])
 def chat():
-    return render_template('chat.html')
-
-@app.route('/api/chat', methods=['POST'])
-def handle_chat():
+    data = request.get_json()
+    user_message = data.get('message', '')
+    
     try:
-        data = request.get_json()
-        user_message = data.get('message', '')
+        # Check if API key exists
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        if not api_key:
+            return jsonify({'error': 'ANTHROPIC_API_KEY not found in environment variables'}), 500
+            
+        client = anthropic.Anthropic(
+            api_key=api_key
+        )
         
-        if not user_message:
-            return jsonify({'error': 'No message provided'}), 400
-
-        # Call Claude API
-        message = claude_client.messages.create(
-            model="claude-3-opus-20240229",
-            max_tokens=1000,
+        message = client.messages.create(
+            model="claude-3-7-sonnet-20250219",
+            max_tokens=20000,
+            temperature=1,
+            system="AI CHATBOT AND THE ANSWER SHOULD NOT BE MORE THAN 3 SENTENCES. DON'T ANSWER IN DETAILED WAYS",
             messages=[
                 {
                     "role": "user",
-                    "content": user_message
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": user_message
+                        }
+                    ]
                 }
             ]
         )
-
+        
         return jsonify({'response': message.content[0].text})
     except Exception as e:
-        logging.error(f"Error in chat: {str(e)}")
-        return jsonify({'error': 'An error occurred while processing your request'}), 500
+        # Log the full error for debugging
+        print(f"Error in chat route: {str(e)}")
+        import traceback
+        print(f"Traceback: {traceback.format_exc()}")
+        return jsonify({'error': f'Error processing request: {str(e)}'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001) 

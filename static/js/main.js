@@ -156,4 +156,53 @@ function showLoading(element) {
 // 로딩 숨기기
 function hideLoading(element) {
     element.find('.loading').remove();
-} 
+}
+
+// Chat functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const chatMessages = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const chatInterface = document.getElementById('chat-interface');
+
+    // Function to add a message to the chat
+    function addMessage(content, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = isUser ? 'user-message' : 'assistant-message';
+        messageDiv.textContent = content;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Function to send message to Claude API
+    async function sendMessage(message) {
+        try {
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message })
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            addMessage(data.response);
+        } catch (error) {
+            console.error('Error:', error);
+            addMessage('Sorry, there was an error processing your message.', false);
+        }
+    }
+
+    // Handle chat input
+    chatInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && chatInput.value.trim()) {
+            const message = chatInput.value.trim();
+            addMessage(message, true);
+            sendMessage(message);
+            chatInput.value = '';
+        }
+    });
+}); 
