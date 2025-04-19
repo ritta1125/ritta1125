@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis{% endblock %}
+
+{% block content %}
+<div class="analysis-section">
+    <h1>상세 분석</h1>
+    
+    <div class="policy-section">
+        <h2>Priority Areas</h2>
+        <div id="priority-areas">
+            {% for area in policy_recommendations.priority_areas %}
+            <div class="recommendation-item">
+                <h3>{{ area.title }}</h3>
+                <p>{{ area.description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="policy-section">
+        <h2>Support Measures</h2>
+        <div id="support-measures">
+            {% for measure in policy_recommendations.support_measures %}
+            <div class="recommendation-item">
+                <h3>{{ measure.title }}</h3>
+                <p>{{ measure.description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="policy-section">
+        <h2>Monitoring Suggestions</h2>
+        <div id="monitoring-suggestions">
+            {% for suggestion in policy_recommendations.monitoring_suggestions %}
+            <div class="recommendation-item">
+                <h3>{{ suggestion.title }}</h3>
+                <p>{{ suggestion.description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
