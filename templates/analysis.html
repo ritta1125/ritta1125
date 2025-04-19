@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}상세 분석{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">상세 분석</h1>
+
+    <!-- Policy Section -->
+    <div id="policy" class="card mb-4">
+        <div class="card-header">
+            <h2 class="mb-0">정책 제안</h2>
+        </div>
+        <div class="card-body">
+            <!-- Priority Areas -->
+            <div class="mb-4">
+                <h3>우선 관리 지역</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>지역</th>
+                                <th>학교명</th>
+                                <th>폐교 위험도</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for area in policy_recommendations.priority_areas %}
+                            <tr>
+                                <td>{{ area.region }}</td>
+                                <td>{{ area.school_name }}</td>
+                                <td>{{ "%.2f"|format(area.closure_risk_index) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Support Measures -->
+            <div class="mb-4">
+                <h3>지원 방안</h3>
+                <ul class="list-group">
+                    {% for measure in policy_recommendations.support_measures %}
+                    <li class="list-group-item">{{ measure }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Monitoring Suggestions -->
+            <div class="mb-4">
+                <h3>모니터링 제안</h3>
+                <ul class="list-group">
+                    {% for suggestion in policy_recommendations.monitoring_suggestions %}
+                    <li class="list-group-item">{{ suggestion }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

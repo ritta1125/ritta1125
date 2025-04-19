@@ -29,7 +29,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__, static_folder='static')
-app.config['SECRET_KEY'] = 'your-secret-key-here'  # Change this in production
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')  # Use environment variable
 app.config['UPLOAD_FOLDER'] = 'data/raw'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 app.debug = True  # Enable debug mode
@@ -130,7 +130,25 @@ def map_view():
 @app.route('/analysis')
 def analysis_view():
     """상세 분석 페이지"""
-    return render_template('analysis.html')
+    try:
+        # Get analysis results
+        analysis_results = analyzer.run()
+        
+        # Extract policy recommendations
+        policy_recommendations = analysis_results.get('policy_recommendations', {
+            'priority_areas': [],
+            'support_measures': [],
+            'monitoring_suggestions': []
+        })
+        
+        return render_template('analysis.html', policy_recommendations=policy_recommendations)
+    except Exception as e:
+        logger.error(f"Error in analysis view: {str(e)}")
+        return render_template('analysis.html', policy_recommendations={
+            'priority_areas': [],
+            'support_measures': [],
+            'monitoring_suggestions': []
+        })
 
 @app.route('/kess_data')
 def kess_data():
@@ -548,4 +566,6 @@ def chat():
         return jsonify({'error': f'Error processing request: {str(e)}'}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5001) 
+    # For production, use the PORT environment variable
+    port = int(os.getenv('PORT', 5001))
+    app.run(host='0.0.0.0', port=port) 

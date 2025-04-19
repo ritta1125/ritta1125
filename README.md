@@ -1,3 +1,28 @@
+# Ritta's Website
+
+This is a static website hosted on GitHub Pages.
+
+## Project Structure
+
+- `static_site/` - Contains the main website files
+  - `index.html` - Home page
+  - `analysis.html` - Analysis page
+  - `css/` - Stylesheets
+  - `js/` - JavaScript files
+  - `data/` - JSON data files
+
+## Setup
+
+1. The site is automatically deployed to GitHub Pages
+2. Visit https://ritta1125.github.io/ritta1125/ to view the site
+
+## Features
+
+- Responsive design
+- Interactive chat interface
+- Policy recommendations display
+- Dynamic content loading
+
 # 폐교 위험 지역과 다문화 가정 분포 간의 상관관계 분석
 
 ## 프로젝트 개요

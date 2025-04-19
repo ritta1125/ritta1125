@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis - Ritta's Website</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/chat.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="analysis.html">Analysis</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="analysis-section">
+            <h1>Policy Recommendations</h1>
+            
+            <div class="policy-section">
+                <h2>Priority Areas</h2>
+                <div id="priority-areas">
+                    <!-- Priority areas will be loaded dynamically -->
+                </div>
+            </div>
+
+            <div class="policy-section">
+                <h2>Support Measures</h2>
+                <div id="support-measures">
+                    <!-- Support measures will be loaded dynamically -->
+                </div>
+            </div>
+
+            <div class="policy-section">
+                <h2>Monitoring Suggestions</h2>
+                <div id="monitoring-suggestions">
+                    <!-- Monitoring suggestions will be loaded dynamically -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <div class="chat-header">
+            <h3>Chat with Claude</h3>
+            <button class="close-chat">×</button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <!-- Messages will be added here dynamically -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button id="send-button">Send</button>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/analysis.js"></script>
+</body>
+</html> 
