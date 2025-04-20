@@ -1,0 +1,50 @@
+{
+    "policy_recommendations": {
+        "priority_areas": [
+            {
+                "region": "경기",
+                "school_name": "경기초등학교",
+                "closure_risk_index": 0.85,
+                "multicultural_ratio": 0.12
+            },
+            {
+                "region": "서울",
+                "school_name": "서울초등학교",
+                "closure_risk_index": 0.78,
+                "multicultural_ratio": 0.15
+            },
+            {
+                "region": "인천",
+                "school_name": "인천초등학교",
+                "closure_risk_index": 0.72,
+                "multicultural_ratio": 0.18
+            },
+            {
+                "region": "부산",
+                "school_name": "부산초등학교",
+                "closure_risk_index": 0.68,
+                "multicultural_ratio": 0.14
+            },
+            {
+                "region": "대구",
+                "school_name": "대구초등학교",
+                "closure_risk_index": 0.65,
+                "multicultural_ratio": 0.16
+            }
+        ],
+        "support_measures": [
+            "다문화 학생 지원 프로그램 강화 (폐교위험도와 다문화비중이 양의 상관관계를 보임)",
+            "학급당 학생 수 감소에 따른 교사 인력 재배치",
+            "다문화 가정을 위한 맞춤형 교육 프로그램 개발",
+            "지역사회 연계 교육 인프라 구축",
+            "폐교 위험 지역의 학교 통폐합 계획 수립"
+        ],
+        "monitoring_suggestions": [
+            "학급 수 및 학생 수 감소율의 지속적인 모니터링",
+            "다문화 학생 비율 변화 추적",
+            "지역별 교육 인프라 현황 정기 점검",
+            "폐교 위험도 지수의 변화 추이 분석",
+            "다문화 가정의 교육 수요 변화 모니터링"
+        ]
+    }
+} 
