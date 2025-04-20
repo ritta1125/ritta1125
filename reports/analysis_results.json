@@ -205,16 +205,16 @@
             "y_label": "결혼 이민자 비율",
             "data": {
               "x": [
-                600,
-                100
+                100,
+                600
               ],
               "y": [
                 0.5,
                 0.5
               ],
               "labels": [
-                "jeju",
-                "daegu"
+                "daegu",
+                "jeju"
               ]
             }
           },
@@ -225,16 +225,16 @@
             "y_label": "학생 수",
             "data": {
               "x": [
-                "jeju",
-                "daegu"
+                "daegu",
+                "jeju"
               ],
               "y": [
-                600,
-                100
+                100,
+                600
               ],
               "labels": [
-                "jeju",
-                "daegu"
+                "daegu",
+                "jeju"
               ]
             }
           },
@@ -245,16 +245,16 @@
             "y_label": "결혼 이민자 비율",
             "data": {
               "x": [
-                "jeju",
-                "daegu"
+                "daegu",
+                "jeju"
               ],
               "y": [
                 0.5,
                 0.5
               ],
               "labels": [
-                "jeju",
-                "daegu"
+                "daegu",
+                "jeju"
               ]
             }
           }
@@ -264,12 +264,12 @@
         "title": "상관관계 분석 결과",
         "data_preparation": {
           "student_data": {
-            "jeju": 600,
-            "daegu": 100
+            "daegu": 100,
+            "jeju": 600
           },
           "immigrant_ratio": {
-            "jeju": 0.5,
-            "daegu": 0.5
+            "daegu": 0.5,
+            "jeju": 0.5
           },
           "calculations": {
             "n": 2,

@@ -808,5 +808,118 @@ def chat():
         logger.error(f"Traceback: {traceback.format_exc()}")
         return jsonify({'error': 'An unexpected error occurred'}), 500
 
+@app.route('/api/time_series/<region>')
+def get_time_series(region):
+    """지역별 시계열 분석 API 엔드포인트"""
+    try:
+        # 지역명 매핑
+        region_mapping = {
+            '강원': 'gangwon.csv',
+            '경기': 'gyeonggi.csv',
+            '경남': 'gyeongnam.csv',
+            '경북': 'gyeongbook.csv',
+            '광주': 'gwangju.csv',
+            '대구': 'daegu.csv',
+            '대전': 'daejeon.csv',
+            '부산': 'busan.csv',
+            '서울': 'seoul.csv',
+            '세종': 'sejong.csv',
+            '울산': 'ulsan.csv',
+            '인천': 'incheon.csv',
+            '전남': 'jeonnam.csv',
+            '전북': 'jeonbook.csv',
+            '제주': 'jeju.csv',
+            '충남': 'chunnam.csv',
+            '충북': 'chunbook.csv'
+        }
+        
+        if region not in region_mapping:
+            return jsonify({'error': f'Invalid region: {region}'}), 400
+            
+        # 폐교 데이터 읽기
+        file_path = os.path.join('data', 'raw', 'location_gone', region_mapping[region])
+        if not os.path.exists(file_path):
+            return jsonify({'error': f'Data file not found for {region}'}), 404
+            
+        # Try reading with UTF-8 first, fall back to CP949 if needed
+        try:
+            df = pd.read_csv(file_path, encoding='utf-8')
+        except UnicodeDecodeError:
+            df = pd.read_csv(file_path, encoding='cp949')
+            
+        # 폐교연도 처리
+        df['폐교연도'] = pd.to_numeric(df['폐교연도'], errors='coerce')
+        df = df.dropna(subset=['폐교연도'])
+        
+        # 연도별 폐교 수 계산
+        yearly_closures = df.groupby('폐교연도').size().reset_index(name='count')
+        yearly_closures = yearly_closures.sort_values('폐교연도')
+        
+        # 다문화 가정 데이터 읽기
+        multicultural_path = os.path.join('data', 'raw', 'multiculture.csv')
+        if os.path.exists(multicultural_path):
+            try:
+                mc_df = pd.read_csv(multicultural_path, encoding='utf-8')
+            except UnicodeDecodeError:
+                mc_df = pd.read_csv(multicultural_path, encoding='cp949')
+                
+            # 지역별 다문화 가정 데이터 추출
+            region_mc_data = mc_df[mc_df['행정구역(읍면동)별(1)'].str.contains(region)]
+            if not region_mc_data.empty:
+                multicultural_count = region_mc_data['결혼이민자 및 귀화자 등'].sum()
+            else:
+                multicultural_count = 0
+        else:
+            multicultural_count = 0
+            
+        # 시계열 분석 결과 생성
+        time_series_data = {
+            'labels': yearly_closures['폐교연도'].astype(int).tolist(),
+            'values': yearly_closures['count'].tolist(),
+            'multicultural_count': int(multicultural_count),
+            'analysis': {
+                'trends': {
+                    'early_period': {
+                        'years': [1982, 1990],
+                        'avg_closures': yearly_closures[
+                            (yearly_closures['폐교연도'] >= 1982) & 
+                            (yearly_closures['폐교연도'] <= 1990)
+                        ]['count'].mean()
+                    },
+                    'peak_period': {
+                        'years': [1991, 1999],
+                        'avg_closures': yearly_closures[
+                            (yearly_closures['폐교연도'] >= 1991) & 
+                            (yearly_closures['폐교연도'] <= 1999)
+                        ]['count'].mean()
+                    },
+                    'decline_period': {
+                        'years': [2000, 2010],
+                        'avg_closures': yearly_closures[
+                            (yearly_closures['폐교연도'] >= 2000) & 
+                            (yearly_closures['폐교연도'] <= 2010)
+                        ]['count'].mean()
+                    },
+                    'stable_period': {
+                        'years': [2011, 2024],
+                        'avg_closures': yearly_closures[
+                            (yearly_closures['폐교연도'] >= 2011) & 
+                            (yearly_closures['폐교연도'] <= 2024)
+                        ]['count'].mean()
+                    }
+                },
+                'correlation': {
+                    'multicultural_impact': '다문화 가정 증가가 폐교 수 감소에 기여했을 가능성 있음',
+                    'policy_impact': '지역 정책(학교 통폐합 완화, 지역 활성화)이 폐교 감소에 영향을 미쳤을 가능성'
+                }
+            }
+        }
+        
+        return jsonify(time_series_data)
+        
+    except Exception as e:
+        logger.error(f"Error in time series analysis for {region}: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001) 

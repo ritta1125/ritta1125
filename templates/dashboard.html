@@ -83,6 +83,20 @@
     .time-series-container {
         margin-top: 20px;
     }
+    .period-label {
+        font-weight: bold;
+        margin-right: 10px;
+    }
+    .period-value {
+        float: right;
+    }
+    .analysis-text {
+        margin-top: 15px;
+    }
+    .analysis-text h6 {
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
 </style>
 {% endblock %}
 
@@ -160,8 +174,73 @@
     <div class="card">
         <div class="card-header">시계열 분석</div>
         <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <select id="regionSelect" class="form-select">
+                        <option value="강원">강원도</option>
+                        <option value="경기">경기도</option>
+                        <option value="경남">경상남도</option>
+                        <option value="경북">경상북도</option>
+                        <option value="광주">광주광역시</option>
+                        <option value="대구">대구광역시</option>
+                        <option value="대전">대전광역시</option>
+                        <option value="부산">부산광역시</option>
+                        <option value="서울">서울특별시</option>
+                        <option value="세종">세종특별자치시</option>
+                        <option value="울산">울산광역시</option>
+                        <option value="인천">인천광역시</option>
+                        <option value="전남">전라남도</option>
+                        <option value="전북">전라북도</option>
+                        <option value="제주">제주특별자치도</option>
+                        <option value="충남">충청남도</option>
+                        <option value="충북">충청북도</option>
+                    </select>
+                </div>
+            </div>
             <div class="time-series-container">
                 <canvas id="timeSeriesChart"></canvas>
+            </div>
+            <div class="analysis-container mt-4">
+                <h5>시계열 분석 결과</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">기간별 평균 폐교 수</div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <span class="period-label">초기 기간 (1982-1990):</span>
+                                        <span class="period-value" id="earlyPeriodAvg">-</span>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="period-label">급증 기간 (1991-1999):</span>
+                                        <span class="period-value" id="peakPeriodAvg">-</span>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="period-label">감소 기간 (2000-2010):</span>
+                                        <span class="period-value" id="declinePeriodAvg">-</span>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="period-label">안정 기간 (2011-2024):</span>
+                                        <span class="period-value" id="stablePeriodAvg">-</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">다문화 가정 현황</div>
+                            <div class="card-body">
+                                <p>현재 다문화 가정 수: <span id="multiculturalCount">-</span>명</p>
+                                <div class="analysis-text">
+                                    <h6>상관관계 분석</h6>
+                                    <p id="correlationAnalysis">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -342,29 +421,6 @@
                         });
                     }
                 }
-                
-                // 시계열 차트 그리기
-                if (data.time_series) {
-                    const ctx = document.getElementById('timeSeriesChart');
-                    if (ctx) {
-                        new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: data.time_series.labels,
-                                datasets: [{
-                                    label: '시계열 분석',
-                                    data: data.time_series.values,
-                                    borderColor: 'rgba(75, 192, 192, 1)',
-                                    tension: 0.1
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false
-                            }
-                        });
-                    }
-                }
             })
             .catch(error => {
                 console.error('Error fetching data:', error);
@@ -378,5 +434,99 @@
                 }
             });
     });
+
+    // 시계열 차트 관련 코드
+    let timeSeriesChart = null;
+    
+    function updateTimeSeriesChart(region) {
+        fetch(`/api/time_series/${region}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 차트 업데이트
+                if (timeSeriesChart) {
+                    timeSeriesChart.destroy();
+                }
+                
+                const ctx = document.getElementById('timeSeriesChart');
+                timeSeriesChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: '연도별 폐교 수',
+                            data: data.values,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            tension: 0.1,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: `${region} 지역 연도별 폐교 수 추이`
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '폐교 수'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '연도'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // 분석 결과 업데이트
+                document.getElementById('earlyPeriodAvg').textContent = 
+                    data.analysis.trends.early_period.avg_closures.toFixed(1);
+                document.getElementById('peakPeriodAvg').textContent = 
+                    data.analysis.trends.peak_period.avg_closures.toFixed(1);
+                document.getElementById('declinePeriodAvg').textContent = 
+                    data.analysis.trends.decline_period.avg_closures.toFixed(1);
+                document.getElementById('stablePeriodAvg').textContent = 
+                    data.analysis.trends.stable_period.avg_closures.toFixed(1);
+                
+                document.getElementById('multiculturalCount').textContent = 
+                    data.multicultural_count.toLocaleString();
+                
+                document.getElementById('correlationAnalysis').textContent = 
+                    `${data.analysis.correlation.multicultural_impact}\n${data.analysis.correlation.policy_impact}`;
+            })
+            .catch(error => {
+                console.error('Error fetching time series data:', error);
+                // 오류 메시지 표시
+                const container = document.querySelector('.time-series-container');
+                if (container) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'alert alert-danger';
+                    errorDiv.textContent = '시계열 데이터를 불러오는 중 오류가 발생했습니다.';
+                    container.appendChild(errorDiv);
+                }
+            });
+    }
+    
+    // 지역 선택 이벤트 리스너
+    document.getElementById('regionSelect').addEventListener('change', function(e) {
+        updateTimeSeriesChart(e.target.value);
+    });
+    
+    // 초기 로드 시 강원도 데이터 표시
+    updateTimeSeriesChart('강원');
 </script>
 {% endblock %} 
