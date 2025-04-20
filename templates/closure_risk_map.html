@@ -26,7 +26,7 @@
                     
                     <!-- Map iframe -->
                     <iframe id="map-frame" 
-                            src="{{ url_for('static', filename='map.html') }}" 
+                            src="/static/map.html?t={{ timestamp }}" 
                             style="width: 100%; height: 800px; border: none; display: none;"
                             onload="mapLoaded()"
                             onerror="mapError()"></iframe>
@@ -113,7 +113,8 @@ function mapError() {
 // Reload the map iframe when the page loads
 document.addEventListener('DOMContentLoaded', function() {
     const frame = document.getElementById('map-frame');
-    frame.src = frame.src;
+    const timestamp = new Date().getTime();
+    frame.src = `/static/map.html?t=${timestamp}`;
 });
 </script>
 {% endblock %} 

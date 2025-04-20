@@ -15,6 +15,7 @@ import json
 import logging
 import anthropic
 from dotenv import load_dotenv
+import time
 
 # Load environment variables
 load_dotenv()
@@ -313,6 +314,7 @@ def closure_risk_map():
     try:
         # Initialize data structures
         region_data = {}
+        heatmap_data = []
         
         # Map Korean region names to CSV filenames
         region_to_file = {
@@ -364,24 +366,128 @@ def closure_risk_map():
                 recent_closures = len(df[df['폐교연도'] >= (max_year - 5)])
                 unused_schools = len(df[df['활용현황'] == '미활용'])
                 
+                # Calculate risk score (weighted average)
+                risk_score = (recent_closures * 0.5 + unused_schools * 0.3 + total_closures * 0.2)
+                
+                # Store region data
                 region_data[region] = {
-                    'total_closures': total_closures,
-                    'recent_closures': recent_closures,
-                    'unused_schools': unused_schools
+                    'total_closures': int(total_closures),  # Convert to integer
+                    'recent_closures': int(recent_closures),  # Convert to integer
+                    'unused_schools': int(unused_schools),  # Convert to integer
+                    'risk_score': float(risk_score)  # Keep as float for heatmap
                 }
+                
+                # Add coordinates and risk score to heatmap data
+                if region in KOREA_REGIONS:
+                    coords = KOREA_REGIONS[region]
+                    # Add multiple points for the region based on risk score
+                    for _ in range(int(risk_score * 10)):  # Scale the number of points
+                        heatmap_data.append([coords['lat'], coords['lon'], risk_score])
                         
             except Exception as e:
                 logger.error(f"Error processing {region} data: {str(e)}")
                 continue
         
+        # Create a Folium map centered on South Korea
+        m = folium.Map(
+            location=[36.5, 127.5],
+            zoom_start=7,
+            tiles='CartoDB positron',
+            control_scale=True
+        )
+        
+        # Add heatmap layer with custom gradient
+        if heatmap_data:
+            plugins.HeatMap(heatmap_data, 
+                          radius=25,
+                          blur=15,
+                          max_zoom=17,
+                          gradient={0.0: 'blue', 0.3: 'lime', 0.5: 'yellow', 0.7: 'orange', 1.0: 'red'}).add_to(m)
+        
+        # Add markers for each region
+        for region, coords in KOREA_REGIONS.items():
+            if region in region_data:
+                data = region_data[region]
+                
+                # Create popup content
+                popup_content = f"""
+                <div style="font-family: 'Malgun Gothic', sans-serif;">
+                    <h4>{region}</h4>
+                    <p>총 폐교: {data['total_closures']}개</p>
+                    <p>최근 폐교: {data['recent_closures']}개</p>
+                    <p>미활용: {data['unused_schools']}개</p>
+                </div>
+                """
+                
+                # Add circle marker
+                folium.CircleMarker(
+                    location=[coords['lat'], coords['lon']],
+                    radius=15,
+                    popup=folium.Popup(popup_content, max_width=200),
+                    color='#000000',
+                    fill=True,
+                    fill_color='#000000',
+                    fill_opacity=0.7,
+                    weight=2
+                ).add_to(m)
+                
+                # Add region label
+                folium.map.Marker(
+                    [coords['lat'], coords['lon']],
+                    icon=folium.DivIcon(
+                        html=f'<div style="font-size: 12px; font-weight: bold;">{region}</div>',
+                        icon_size=(100,20),
+                        icon_anchor=(50,0)
+                    )
+                ).add_to(m)
+        
+        # Ensure static directory exists
+        os.makedirs(app.static_folder, exist_ok=True)
+        
+        # Save the map to a static file
+        map_path = os.path.join(app.static_folder, 'map.html')
+        m.save(map_path)
+        
+        # Add necessary headers and scripts to the map file
+        with open(map_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Add CORS headers and required scripts
+        head_content = """
+        <head>
+            <meta http-equiv="Access-Control-Allow-Origin" content="*">
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+            <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+            <style>
+                body { margin: 0; padding: 0; }
+                #map { width: 100%; height: 100%; }
+            </style>
+        """
+        
+        content = content.replace('<head>', head_content)
+        
+        with open(map_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+        
+        # Log the region data for debugging
+        logger.info(f"Region data: {region_data}")
+        
+        # Get current timestamp
+        timestamp = int(time.time())
+        
         return render_template('closure_risk_map.html', 
-                            region_data=region_data)
+                            region_data=region_data,
+                            timestamp=timestamp)
     
     except Exception as e:
         logger.error(f"Error in closure_risk_map: {str(e)}")
         return render_template('closure_risk_map.html', 
                             error=f"Error processing data: {str(e)}",
-                            region_data={})
+                            region_data={},
+                            timestamp=int(time.time()))
 
 @app.route('/multiculture')
 def multiculture_view():
