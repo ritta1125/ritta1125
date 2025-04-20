@@ -178,7 +178,7 @@ def school_closure_risk():
         '강원': 'gangwon.csv',
         '경기': 'gyeonggi.csv',
         '경남': 'gyeongnam.csv',
-        '경북': 'gyeongbuk.csv',
+        '경북': 'gyeongbook.csv',
         '광주': 'gwangju.csv',
         '대구': 'daegu.csv',
         '대전': 'daejeon.csv',
@@ -188,10 +188,10 @@ def school_closure_risk():
         '울산': 'ulsan.csv',
         '인천': 'incheon.csv',
         '전남': 'jeonnam.csv',
-        '전북': 'jeonbuk.csv',
+        '전북': 'jeonbook.csv',
         '제주': 'jeju.csv',
-        '충남': 'chungnam.csv',
-        '충북': 'chungbuk.csv'
+        '충남': 'chunnam.csv',
+        '충북': 'chunbook.csv'
     }
     
     try:
@@ -218,11 +218,15 @@ def school_closure_risk():
             except UnicodeDecodeError:
                 df = pd.read_csv(filepath, encoding='cp949')
             
+            # Ensure 폐교연도 is numeric and handle any conversion errors
+            df['폐교연도'] = pd.to_numeric(df['폐교연도'], errors='coerce')
+            df = df.dropna(subset=['폐교연도'])  # Remove rows with invalid years
+            
             # Process the data
             for _, row in df.iterrows():
                 school_data = {
                     'school_name': row['폐교명'],
-                    'closure_year': row['폐교연도'],
+                    'closure_year': int(row['폐교연도']),  # Convert to integer
                     'local_office': row['지역교육청'],
                     'school_level': row['급별'],
                     'utilization_status': row['활용현황'],
@@ -251,11 +255,15 @@ def school_closure_risk():
                 except UnicodeDecodeError:
                     df = pd.read_csv(filepath, encoding='cp949')
                 
+                # Ensure 폐교연도 is numeric and handle any conversion errors
+                df['폐교연도'] = pd.to_numeric(df['폐교연도'], errors='coerce')
+                df = df.dropna(subset=['폐교연도'])  # Remove rows with invalid years
+                
                 # Process the data
                 for _, row in df.iterrows():
                     school_data = {
                         'school_name': row['폐교명'],
-                        'closure_year': row['폐교연도'],
+                        'closure_year': int(row['폐교연도']),  # Convert to integer
                         'local_office': row['지역교육청'],
                         'school_level': row['급별'],
                         'utilization_status': row['활용현황'],
@@ -296,20 +304,22 @@ def get_kess_data(year):
         })
     except FileNotFoundError:
         return jsonify({'error': 'Data not found for the specified year'}), 404
+    except Exception as e:
+        logger.error(f"Error in get_kess_data: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/closure_risk_map')
 def closure_risk_map():
     try:
         # Initialize data structures
         region_data = {}
-        heatmap_data = []
         
         # Map Korean region names to CSV filenames
         region_to_file = {
             '강원': 'gangwon.csv',
             '경기': 'gyeonggi.csv',
             '경남': 'gyeongnam.csv',
-            '경북': 'gyeongbuk.csv',
+            '경북': 'gyeongbook.csv',
             '광주': 'gwangju.csv',
             '대구': 'daegu.csv',
             '대전': 'daejeon.csv',
@@ -319,10 +329,10 @@ def closure_risk_map():
             '울산': 'ulsan.csv',
             '인천': 'incheon.csv',
             '전남': 'jeonnam.csv',
-            '전북': 'jeonbuk.csv',
+            '전북': 'jeonbook.csv',
             '제주': 'jeju.csv',
-            '충남': 'chungnam.csv',
-            '충북': 'chungbuk.csv'
+            '충남': 'chunnam.csv',
+            '충북': 'chunbook.csv'
         }
         
         # Process data for each region
@@ -330,103 +340,45 @@ def closure_risk_map():
             filepath = os.path.join('data', 'raw', 'location_gone', filename)
             
             if not os.path.exists(filepath):
+                logger.warning(f"File not found: {filepath}")
                 continue
                 
             try:
-                df = pd.read_csv(filepath, encoding='utf-8')
-            except UnicodeDecodeError:
-                df = pd.read_csv(filepath, encoding='cp949')
-            
-            # Calculate risk metrics
-            total_closures = len(df)
-            recent_closures = len(df[df['폐교연도'] >= df['폐교연도'].max() - 5])
-            unused_schools = len(df[df['활용현황'] == '미활용'])
-            
-            # Calculate risk score (you can adjust the formula based on your needs)
-            risk_score = (recent_closures * 0.5 + unused_schools * 0.3 + total_closures * 0.2)
-            
-            region_data[region] = {
-                'total_closures': total_closures,
-                'recent_closures': recent_closures,
-                'unused_schools': unused_schools,
-                'risk_score': risk_score
-            }
-            
-            # Add coordinates and risk score to heatmap data
-            if region in KOREA_REGIONS:
-                coords = KOREA_REGIONS[region]
-                # Add multiple points for the region based on risk score
-                for _ in range(int(risk_score * 10)):  # Scale the number of points
-                    heatmap_data.append([coords['lat'], coords['lon'], risk_score])
-        
-        # Create a Folium map centered on South Korea
-        m = folium.Map(
-            location=[36.5, 127.5],
-            zoom_start=7,
-            tiles='CartoDB positron'
-        )
-        
-        # Add heatmap layer with custom gradient
-        if heatmap_data:
-            plugins.HeatMap(heatmap_data, 
-                          radius=25,
-                          blur=15,
-                          max_zoom=17,
-                          gradient={0.0: 'blue', 0.3: 'lime', 0.5: 'yellow', 0.7: 'orange', 1.0: 'red'}).add_to(m)
-        
-        # Add markers for each region
-        for region, coords in KOREA_REGIONS.items():
-            if region in region_data:
-                data = region_data[region]
-                # Calculate color based on risk score
-                if data['risk_score'] <= 0.3:
-                    color = '#00C851'  # 낮은 위험 (green)
-                elif data['risk_score'] <= 0.6:
-                    color = '#ffa700'  # 중간 위험 (orange)
-                else:
-                    color = '#ff4444'  # 높은 위험 (red)
+                # Try reading with UTF-8 first, fall back to CP949 if needed
+                try:
+                    df = pd.read_csv(filepath, encoding='utf-8')
+                except UnicodeDecodeError:
+                    df = pd.read_csv(filepath, encoding='cp949')
                 
-                # Create popup content
-                popup_content = f"""
-                <div style="font-family: 'Malgun Gothic', sans-serif;">
-                    <h4>{region}</h4>
-                    <p>총 폐교: {data['total_closures']}개</p>
-                    <p>최근 폐교: {data['recent_closures']}개</p>
-                    <p>미활용: {data['unused_schools']}개</p>
-                </div>
-                """
+                # Ensure 폐교연도 is numeric and handle any conversion errors
+                df['폐교연도'] = pd.to_numeric(df['폐교연도'], errors='coerce')
+                df = df.dropna(subset=['폐교연도'])  # Remove rows with invalid years
                 
-                # Add circle marker
-                folium.CircleMarker(
-                    location=[coords['lat'], coords['lon']],
-                    radius=15,
-                    popup=folium.Popup(popup_content, max_width=200),
-                    color=color,
-                    fill=True,
-                    fill_color=color,
-                    fill_opacity=0.7,
-                    weight=2
-                ).add_to(m)
+                if df.empty:
+                    logger.warning(f"No valid data for region: {region}")
+                    continue
                 
-                # Add region label
-                folium.map.Marker(
-                    [coords['lat'], coords['lon']],
-                    icon=folium.DivIcon(
-                        html=f'<div style="font-size: 12px; font-weight: bold;">{region}</div>',
-                        icon_size=(100,20),
-                        icon_anchor=(50,0)
-                    )
-                ).add_to(m)
-        
-        # Save the map to a temporary file
-        map_path = os.path.join(app.static_folder, 'map.html')
-        m.save(map_path)
+                # Calculate risk metrics
+                total_closures = len(df)
+                max_year = df['폐교연도'].max()
+                recent_closures = len(df[df['폐교연도'] >= (max_year - 5)])
+                unused_schools = len(df[df['활용현황'] == '미활용'])
+                
+                region_data[region] = {
+                    'total_closures': total_closures,
+                    'recent_closures': recent_closures,
+                    'unused_schools': unused_schools
+                }
+                        
+            except Exception as e:
+                logger.error(f"Error processing {region} data: {str(e)}")
+                continue
         
         return render_template('closure_risk_map.html', 
                             region_data=region_data)
     
     except Exception as e:
-        print(f"Error in closure_risk_map: {str(e)}")
+        logger.error(f"Error in closure_risk_map: {str(e)}")
         return render_template('closure_risk_map.html', 
                             error=f"Error processing data: {str(e)}",
                             region_data={})

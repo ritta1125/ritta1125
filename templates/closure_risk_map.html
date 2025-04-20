@@ -16,9 +16,20 @@
         <div class="col-md-9">
             <div class="card">
                 <div class="card-body p-0">
-                    <!-- Embed the Folium map -->
-                    <iframe id="map-frame" src="{{ url_for('static', filename='map.html') }}" 
-                            style="width: 100%; height: 800px; border: none;"></iframe>
+                    <!-- Loading indicator -->
+                    <div id="map-loading" class="text-center p-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">지도를 불러오는 중...</p>
+                    </div>
+                    
+                    <!-- Map iframe -->
+                    <iframe id="map-frame" 
+                            src="{{ url_for('static', filename='map.html') }}" 
+                            style="width: 100%; height: 800px; border: none; display: none;"
+                            onload="mapLoaded()"
+                            onerror="mapError()"></iframe>
                 </div>
             </div>
         </div>
@@ -49,8 +60,8 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-sm">
-                            <thead>
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
                                 <tr>
                                     <th>지역</th>
                                     <th>총 폐교</th>
@@ -59,14 +70,20 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for region, data in region_data.items() %}
-                                <tr style="background-color: {{ data.color }}20;">
-                                    <td>{{ region }}</td>
-                                    <td>{{ data.total_closures }}</td>
-                                    <td>{{ data.recent_closures }}</td>
-                                    <td>{{ data.unused_schools }}</td>
-                                </tr>
-                                {% endfor %}
+                                {% if region_data %}
+                                    {% for region, data in region_data.items() %}
+                                    <tr>
+                                        <td>{{ region }}</td>
+                                        <td>{{ data.total_closures }}</td>
+                                        <td>{{ data.recent_closures }}</td>
+                                        <td>{{ data.unused_schools }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">데이터가 없습니다.</td>
+                                    </tr>
+                                {% endif %}
                             </tbody>
                         </table>
                     </div>
@@ -77,15 +94,26 @@
 </div>
 
 <script>
-// Function to reload the map iframe
-function reloadMap() {
+// Function to handle map loading
+function mapLoaded() {
+    const loading = document.getElementById('map-loading');
     const frame = document.getElementById('map-frame');
-    frame.src = frame.src;
+    loading.style.display = 'none';
+    frame.style.display = 'block';
+    console.log('Map loaded successfully');
 }
 
-// Reload the map when the page loads
+// Function to handle map loading errors
+function mapError() {
+    const loading = document.getElementById('map-loading');
+    loading.innerHTML = '<div class="alert alert-danger">지도를 불러오는 중 오류가 발생했습니다. 페이지를 새로고침해주세요.</div>';
+    console.error('Error loading map');
+}
+
+// Reload the map iframe when the page loads
 document.addEventListener('DOMContentLoaded', function() {
-    reloadMap();
+    const frame = document.getElementById('map-frame');
+    frame.src = frame.src;
 });
 </script>
 {% endblock %} 
