@@ -1,0 +1,9 @@
+theme: null
+plugins: []
+markdown: kramdown
+exclude:
+  - .nojekyll
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor 
