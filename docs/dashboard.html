@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대시보드 - 폐교 위험 지역과 다문화 가정 분포 분석</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/chat.css">
+    <style>
+        .dashboard-container {
+            padding: 20px;
+        }
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        .correlation-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .correlation-chart {
+            flex: 1;
+            min-height: 400px;
+        }
+        .correlation-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .analysis-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        .analysis-section h6 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        .data-table th, .data-table td {
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            text-align: left;
+        }
+        .data-table th {
+            background-color: #f8f9fa;
+        }
+        .limitations-list, .suggestions-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .limitations-list li, .suggestions-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .limitations-list li:last-child, .suggestions-list li:last-child {
+            border-bottom: none;
+        }
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #ffeeba;
+            color: #856404;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .time-series-container {
+            margin-top: 20px;
+        }
+        .period-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .period-value {
+            float: right;
+        }
+        .analysis-text {
+            margin-top: 15px;
+        }
+        .analysis-text h6 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-school me-2"></i>학교-다문화 분석
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">홈</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">대시보드</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="school_closure_risk.html">폐교 위험도 분석</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="closure_risk_map.html">폐교 위험도 지도</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-4">
+        <div class="dashboard-container">
+            <h2 class="mb-4">대시보드</h2>
+            
+            <!-- 폐교 위험도 분포 -->
+            <div class="card">
+                <div class="card-header">폐교 위험도 분포</div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="riskDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 지역별 통계 -->
+            <div class="card">
+                <div class="card-header">지역별 통계</div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="regionalStatsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 상관관계 분석 -->
+            <div class="card">
+                <div class="card-header">상관관계 분석</div>
+                <div class="card-body">
+                    <div class="correlation-container">
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="chart-container">
+                                    <h5 class="text-center">폐교 위험도와 다문화 가정 분포</h5>
+                                    <canvas id="chart1"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="chart-container">
+                                    <h5 class="text-center">지역별 상관관계</h5>
+                                    <canvas id="chart2"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="correlation-info mt-4">
+                            <h5>상관관계 분석 결과</h5>
+                            <div class="analysis-section">
+                                <h6>해석</h6>
+                                <ul class="interpretation-list">
+                                    <li>폐교 위험도가 높은 지역일수록 다문화 가정의 비율이 낮은 경향이 있습니다.</li>
+                                    <li>도시 지역에서는 다문화 가정의 비율이 높고 폐교 위험도가 낮은 반면, 농촌 지역에서는 그 반대의 경향을 보입니다.</li>
+                                    <li>특히 수도권과 대도시 지역에서 다문화 가정의 집중도가 높게 나타납니다.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 시계열 분석 -->
+            <div class="card">
+                <div class="card-header">시계열 분석</div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <select id="regionSelect" class="form-select">
+                                <option value="강원">강원도</option>
+                                <option value="경기">경기도</option>
+                                <option value="경남">경상남도</option>
+                                <option value="경북">경상북도</option>
+                                <option value="광주">광주광역시</option>
+                                <option value="대구">대구광역시</option>
+                                <option value="대전">대전광역시</option>
+                                <option value="부산">부산광역시</option>
+                                <option value="서울">서울특별시</option>
+                                <option value="세종">세종특별자치시</option>
+                                <option value="울산">울산광역시</option>
+                                <option value="인천">인천광역시</option>
+                                <option value="전남">전라남도</option>
+                                <option value="전북">전라북도</option>
+                                <option value="제주">제주특별자치도</option>
+                                <option value="충남">충청남도</option>
+                                <option value="충북">충청북도</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="time-series-container">
+                        <canvas id="timeSeriesChart"></canvas>
+                    </div>
+                    <div class="analysis-container mt-4">
+                        <h5>시계열 분석 결과</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">기간별 평균 폐교 수</div>
+                                    <div class="card-body">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item">
+                                                <span class="period-label">초기 기간 (1982-1990):</span>
+                                                <span class="period-value" id="earlyPeriodAvg">5.2</span>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <span class="period-label">급증 기간 (1991-1999):</span>
+                                                <span class="period-value" id="peakPeriodAvg">12.8</span>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <span class="period-label">감소 기간 (2000-2010):</span>
+                                                <span class="period-value" id="declinePeriodAvg">8.4</span>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <span class="period-label">안정 기간 (2011-2024):</span>
+                                                <span class="period-value" id="stablePeriodAvg">4.1</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">다문화 가정 현황</div>
+                                    <div class="card-body">
+                                        <p>현재 다문화 가정 수: <span id="multiculturalCount">350,000</span>명</p>
+                                        <div class="analysis-text">
+                                            <h6>상관관계 분석</h6>
+                                            <p id="correlationAnalysis">폐교 수가 감소하는 시기와 다문화 가정의 증가 시기가 일치하는 것으로 나타났습니다. 이는 도시화와 인구 이동이 두 현상에 영향을 미쳤을 가능성을 시사합니다.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <div class="chat-header" id="chat-header">
+            <span>AI Assistant</span>
+            <button class="toggle-chat" id="toggle-chat">-</button>
+        </div>
+        <div class="chat-container" id="chat-container">
+            <div id="chat-messages" class="chat-messages">
+                <!-- Messages will be added here -->
+            </div>
+            <div class="chat-input-container">
+                <input type="text" id="user-input" class="form-control" placeholder="Type your message...">
+                <button class="btn btn-primary" id="send-button">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">© 2024 폐교 위험 지역과 다문화 가정 분포 분석. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="js/main.js"></script>
+
+    <!-- Chat Widget Script -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const toggleButton = document.getElementById('toggle-chat');
+        const chatContainer = document.getElementById('chat-container');
+        const chatHeader = document.getElementById('chat-header');
+
+        let isCollapsed = false;
+
+        function addMessage(message, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            userInput.value = '';
+
+            // For static site, we'll just echo the message
+            setTimeout(() => {
+                addMessage("죄송합니다. 정적 사이트에서는 AI 채팅 기능을 사용할 수 없습니다.", false);
+            }, 500);
+        }
+
+        function toggleChat() {
+            isCollapsed = !isCollapsed;
+            chatContainer.classList.toggle('collapsed', isCollapsed);
+            toggleButton.textContent = isCollapsed ? '+' : '-';
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        toggleButton.addEventListener('click', toggleChat);
+        chatHeader.addEventListener('click', toggleChat);
+    });
+    </script>
+</body>
+</html> 

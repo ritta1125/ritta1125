@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}KESS 교육통계 데이터 - 폐교 위험 지역과 다문화 가정 분포 분석{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>KESS 교육통계 데이터</h2>
+        <p class="lead">교육통계서비스(KESS)에서 수집한 학교별 학급 수 및 학생 수 데이터</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">연도별 데이터 선택</h5>
+                <div class="btn-group" role="group">
+                    {% for year in years %}
+                    <button type="button" class="btn btn-outline-primary year-btn" data-year="{{ year }}">
+                        {{ year }}년
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">학교 데이터</h5>
+                <div class="table-responsive">
+                    <table id="schoolTable" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>학교명</th>
+                                <th>학급 수</th>
+                                <th>학생 수</th>
+                                <th>학급당 학생 수</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for school in schools %}
+                            <tr>
+                                <td>{{ school.school_name }}</td>
+                                <td>{{ school.class_count }}</td>
+                                <td>{{ school.student_count }}</td>
+                                <td>{{ school.students_per_class }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">학급당 학생 수 분포</h5>
+                <div id="studentsPerClassChart"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">학교 규모별 분포</h5>
+                <div id="schoolSizeChart"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Initialize DataTable
+    var table = $('#schoolTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.11.5/i18n/ko.json"
+        },
+        "pageLength": 25
+    });
+
+    // Year button click handler
+    $('.year-btn').click(function() {
+        var year = $(this).data('year');
+        // Remove active class from all buttons
+        $('.year-btn').removeClass('active');
+        // Add active class to clicked button
+        $(this).addClass('active');
+        
+        // Load data for selected year
+        $.get(`/api/kess_data/${year}`, function(data) {
+            // Update table
+            table.clear();
+            data.schools.forEach(function(school) {
+                table.row.add([
+                    school.school_name,
+                    school.class_count,
+                    school.student_count,
+                    school.students_per_class
+                ]);
+            });
+            table.draw();
+            
+            // Update charts
+            updateCharts(data);
+        });
+    });
+
+    // Function to update charts
+    function updateCharts(data) {
+        // Students per class distribution
+        var studentsPerClassTrace = {
+            x: data.students_per_class,
+            type: 'histogram',
+            name: '학급당 학생 수',
+            marker: {
+                color: 'rgba(55, 128, 191, 0.7)'
+            }
+        };
+        
+        var studentsPerClassLayout = {
+            title: '학급당 학생 수 분포',
+            xaxis: {
+                title: '학급당 학생 수'
+            },
+            yaxis: {
+                title: '학교 수'
+            }
+        };
+        
+        Plotly.newPlot('studentsPerClassChart', [studentsPerClassTrace], studentsPerClassLayout);
+        
+        // School size distribution
+        var schoolSizeTrace = {
+            x: data.student_count,
+            type: 'histogram',
+            name: '학교 규모',
+            marker: {
+                color: 'rgba(219, 64, 82, 0.7)'
+            }
+        };
+        
+        var schoolSizeLayout = {
+            title: '학교 규모 분포',
+            xaxis: {
+                title: '학생 수'
+            },
+            yaxis: {
+                title: '학교 수'
+            }
+        };
+        
+        Plotly.newPlot('schoolSizeChart', [schoolSizeTrace], schoolSizeLayout);
+    }
+
+    // Click the first year button by default
+    $('.year-btn').first().click();
+});
+</script>
+{% endblock %} 

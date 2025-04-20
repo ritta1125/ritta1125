@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>폐교 위험도 지도</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/chat.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-school me-2"></i>학교-다문화 분석
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">홈</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">대시보드</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="school_closure_risk.html">폐교 위험도 분석</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="closure_risk_map.html">폐교 위험도 지도</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-4">
+        <h1 class="mb-4">폐교 위험도 지도</h1>
+
+        <div class="row">
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-body p-0">
+                        <!-- Map container -->
+                        <div id="map" style="height: 800px; width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">위험도 범례</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            <div style="width: 20px; height: 20px; background-color: #ff4444; margin-right: 10px; border-radius: 50%;"></div>
+                            <span>높은 위험 (상위 33%)</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <div style="width: 20px; height: 20px; background-color: #ffa700; margin-right: 10px; border-radius: 50%;"></div>
+                            <span>중간 위험 (중위 33%)</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div style="width: 20px; height: 20px; background-color: #00C851; margin-right: 10px; border-radius: 50%;"></div>
+                            <span>낮은 위험 (하위 33%)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">지역별 통계</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>지역</th>
+                                        <th>총 폐교</th>
+                                        <th>최근 폐교</th>
+                                        <th>미활용</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>서울</td>
+                                        <td>45</td>
+                                        <td>5</td>
+                                        <td>12</td>
+                                    </tr>
+                                    <tr>
+                                        <td>부산</td>
+                                        <td>32</td>
+                                        <td>3</td>
+                                        <td>8</td>
+                                    </tr>
+                                    <tr>
+                                        <td>대구</td>
+                                        <td>28</td>
+                                        <td>2</td>
+                                        <td>7</td>
+                                    </tr>
+                                    <tr>
+                                        <td>인천</td>
+                                        <td>25</td>
+                                        <td>4</td>
+                                        <td>6</td>
+                                    </tr>
+                                    <tr>
+                                        <td>광주</td>
+                                        <td>18</td>
+                                        <td>1</td>
+                                        <td>4</td>
+                                    </tr>
+                                    <tr>
+                                        <td>대전</td>
+                                        <td>15</td>
+                                        <td>2</td>
+                                        <td>3</td>
+                                    </tr>
+                                    <tr>
+                                        <td>울산</td>
+                                        <td>12</td>
+                                        <td>1</td>
+                                        <td>2</td>
+                                    </tr>
+                                    <tr>
+                                        <td>세종</td>
+                                        <td>5</td>
+                                        <td>0</td>
+                                        <td>1</td>
+                                    </tr>
+                                    <tr>
+                                        <td>경기</td>
+                                        <td>65</td>
+                                        <td>8</td>
+                                        <td>15</td>
+                                    </tr>
+                                    <tr>
+                                        <td>강원</td>
+                                        <td>42</td>
+                                        <td>6</td>
+                                        <td>10</td>
+                                    </tr>
+                                    <tr>
+                                        <td>충북</td>
+                                        <td>35</td>
+                                        <td>4</td>
+                                        <td>8</td>
+                                    </tr>
+                                    <tr>
+                                        <td>충남</td>
+                                        <td>38</td>
+                                        <td>5</td>
+                                        <td>9</td>
+                                    </tr>
+                                    <tr>
+                                        <td>전북</td>
+                                        <td>48</td>
+                                        <td>7</td>
+                                        <td>12</td>
+                                    </tr>
+                                    <tr>
+                                        <td>전남</td>
+                                        <td>52</td>
+                                        <td>6</td>
+                                        <td>13</td>
+                                    </tr>
+                                    <tr>
+                                        <td>경북</td>
+                                        <td>58</td>
+                                        <td>7</td>
+                                        <td>14</td>
+                                    </tr>
+                                    <tr>
+                                        <td>경남</td>
+                                        <td>45</td>
+                                        <td>5</td>
+                                        <td>11</td>
+                                    </tr>
+                                    <tr>
+                                        <td>제주</td>
+                                        <td>22</td>
+                                        <td>3</td>
+                                        <td>5</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <div class="chat-header" id="chat-header">
+            <span>AI Assistant</span>
+            <button class="toggle-chat" id="toggle-chat">-</button>
+        </div>
+        <div class="chat-container" id="chat-container">
+            <div id="chat-messages" class="chat-messages">
+                <!-- Messages will be added here -->
+            </div>
+            <div class="chat-input-container">
+                <input type="text" id="user-input" class="form-control" placeholder="Type your message...">
+                <button class="btn btn-primary" id="send-button">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">© 2024 폐교 위험 지역과 다문화 가정 분포 분석. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="js/main.js"></script>
+
+    <!-- Map Initialization Script -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize map
+        const map = L.map('map').setView([36.5, 127.5], 7);
+        
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Add markers for each region (example data)
+        const regions = [
+            {name: '서울', lat: 37.5665, lng: 126.9780, risk: 'high'},
+            {name: '부산', lat: 35.1796, lng: 129.0756, risk: 'medium'},
+            {name: '대구', lat: 35.8714, lng: 128.6014, risk: 'low'},
+            // Add more regions as needed
+        ];
+
+        regions.forEach(region => {
+            const color = region.risk === 'high' ? '#ff4444' : 
+                         region.risk === 'medium' ? '#ffa700' : '#00C851';
+            
+            L.circleMarker([region.lat, region.lng], {
+                radius: 8,
+                fillColor: color,
+                color: '#000',
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.8
+            }).addTo(map).bindPopup(region.name);
+        });
+    });
+    </script>
+
+    <!-- Chat Widget Script -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const toggleButton = document.getElementById('toggle-chat');
+        const chatContainer = document.getElementById('chat-container');
+        const chatHeader = document.getElementById('chat-header');
+
+        let isCollapsed = false;
+
+        function addMessage(message, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            userInput.value = '';
+
+            // For static site, we'll just echo the message
+            setTimeout(() => {
+                addMessage("죄송합니다. 정적 사이트에서는 AI 채팅 기능을 사용할 수 없습니다.", false);
+            }, 500);
+        }
+
+        function toggleChat() {
+            isCollapsed = !isCollapsed;
+            chatContainer.classList.toggle('collapsed', isCollapsed);
+            toggleButton.textContent = isCollapsed ? '+' : '-';
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        toggleButton.addEventListener('click', toggleChat);
+        chatHeader.addEventListener('click', toggleChat);
+    });
+    </script>
+</body>
+</html> 

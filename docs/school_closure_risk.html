@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>폐교 위험도 분석</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/chat.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-school me-2"></i>학교-다문화 분석
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">홈</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">대시보드</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="school_closure_risk.html">폐교 위험도 분석</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="closure_risk_map.html">폐교 위험도 지도</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-4">
+        <div class="container mt-4">
+            <h1 class="mb-4">폐교 위험도 분석</h1>
+            
+            {% if error %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <!-- Region Buttons -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">시도교육청 선택</h5>
+                            <div class="btn-group" role="group" id="regionButtons">
+                                <a href="school_closure_risk.html" class="btn btn-outline-primary {% if not selected_region or selected_region == 'all' %}active{% endif %}">전체</a>
+                                <a href="school_closure_risk.html?region=강원" class="btn btn-outline-primary {% if selected_region == '강원' %}active{% endif %}">강원</a>
+                                <a href="school_closure_risk.html?region=경기" class="btn btn-outline-primary {% if selected_region == '경기' %}active{% endif %}">경기</a>
+                                <a href="school_closure_risk.html?region=경남" class="btn btn-outline-primary {% if selected_region == '경남' %}active{% endif %}">경남</a>
+                                <a href="school_closure_risk.html?region=경북" class="btn btn-outline-primary {% if selected_region == '경북' %}active{% endif %}">경북</a>
+                                <a href="school_closure_risk.html?region=광주" class="btn btn-outline-primary {% if selected_region == '광주' %}active{% endif %}">광주</a>
+                                <a href="school_closure_risk.html?region=대구" class="btn btn-outline-primary {% if selected_region == '대구' %}active{% endif %}">대구</a>
+                                <a href="school_closure_risk.html?region=대전" class="btn btn-outline-primary {% if selected_region == '대전' %}active{% endif %}">대전</a>
+                                <a href="school_closure_risk.html?region=부산" class="btn btn-outline-primary {% if selected_region == '부산' %}active{% endif %}">부산</a>
+                                <a href="school_closure_risk.html?region=서울" class="btn btn-outline-primary {% if selected_region == '서울' %}active{% endif %}">서울</a>
+                                <a href="school_closure_risk.html?region=세종" class="btn btn-outline-primary {% if selected_region == '세종' %}active{% endif %}">세종</a>
+                                <a href="school_closure_risk.html?region=울산" class="btn btn-outline-primary {% if selected_region == '울산' %}active{% endif %}">울산</a>
+                                <a href="school_closure_risk.html?region=인천" class="btn btn-outline-primary {% if selected_region == '인천' %}active{% endif %}">인천</a>
+                                <a href="school_closure_risk.html?region=전남" class="btn btn-outline-primary {% if selected_region == '전남' %}active{% endif %}">전남</a>
+                                <a href="school_closure_risk.html?region=전북" class="btn btn-outline-primary {% if selected_region == '전북' %}active{% endif %}">전북</a>
+                                <a href="school_closure_risk.html?region=제주" class="btn btn-outline-primary {% if selected_region == '제주' %}active{% endif %}">제주</a>
+                                <a href="school_closure_risk.html?region=충남" class="btn btn-outline-primary {% if selected_region == '충남' %}active{% endif %}">충남</a>
+                                <a href="school_closure_risk.html?region=충북" class="btn btn-outline-primary {% if selected_region == '충북' %}active{% endif %}">충북</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">총 폐교 수</h5>
+                            <h2 class="card-text" id="totalSchools">-</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">평균 폐교 연도</h5>
+                            <h2 class="card-text" id="avgYear">-</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">최근 5년 폐교 수</h5>
+                            <h2 class="card-text" id="recentClosures">-</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">활용 중인 폐교</h5>
+                            <h2 class="card-text" id="utilizedSchools">-</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Region Comparison Charts -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">시도교육청별 폐교 수 비교</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="regionComparisonChart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">시도교육청별 평균 폐교 연도</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="regionYearComparisonChart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Selected Region Charts -->
+            <div id="selectedRegionCharts">
+                <!-- First Row of Charts -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">폐교 연도 분포</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="closureYearChart"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">학교 급별 분포</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="schoolLevelChart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- School Closure Table -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">폐교 정보</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped" id="schoolClosureTable">
+                                        <thead>
+                                            <tr>
+                                                <th>폐교명</th>
+                                                <th>폐교연도</th>
+                                                <th>지역교육청</th>
+                                                <th>급별</th>
+                                                <th>활용현황</th>
+                                                <th>주소</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for school in closure_risk_data %}
+                                            <tr>
+                                                <td>{{ school.school_name }}</td>
+                                                <td>{{ school.closure_year }}</td>
+                                                <td>{{ school.local_office }}</td>
+                                                <td>{{ school.school_level }}</td>
+                                                <td>{{ school.utilization_status }}</td>
+                                                <td>{{ school.address }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <div class="chat-header" id="chat-header">
+            <span>AI Assistant</span>
+            <button class="toggle-chat" id="toggle-chat">-</button>
+        </div>
+        <div class="chat-container" id="chat-container">
+            <div id="chat-messages" class="chat-messages">
+                <!-- Messages will be added here -->
+            </div>
+            <div class="chat-input-container">
+                <input type="text" id="user-input" class="form-control" placeholder="Type your message...">
+                <button class="btn btn-primary" id="send-button">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">© 2024 폐교 위험 지역과 다문화 가정 분포 분석. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!-- DataTables -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="js/main.js"></script>
+
+    <!-- Chat Widget Script -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const toggleButton = document.getElementById('toggle-chat');
+        const chatContainer = document.getElementById('chat-container');
+        const chatHeader = document.getElementById('chat-header');
+
+        let isCollapsed = false;
+
+        function addMessage(message, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            userInput.value = '';
+
+            // For static site, we'll just echo the message
+            setTimeout(() => {
+                addMessage("죄송합니다. 정적 사이트에서는 AI 채팅 기능을 사용할 수 없습니다.", false);
+            }, 500);
+        }
+
+        function toggleChat() {
+            isCollapsed = !isCollapsed;
+            chatContainer.classList.toggle('collapsed', isCollapsed);
+            toggleButton.textContent = isCollapsed ? '+' : '-';
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        toggleButton.addEventListener('click', toggleChat);
+        chatHeader.addEventListener('click', toggleChat);
+    });
+    </script>
+</body>
+</html> 
