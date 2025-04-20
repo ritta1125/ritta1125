@@ -6,4 +6,11 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - node_modules
-  - vendor 
+  - vendor
+permalink: pretty
+defaults:
+  -
+    scope:
+      path: ""
+    values:
+      layout: null 
