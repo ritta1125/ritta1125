@@ -19,10 +19,15 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Initialize Claude client
-claude_client = anthropic.Anthropic(
-    api_key=os.getenv('ANTHROPIC_API_KEY')
-)
+# Check if API key exists
+api_key = os.getenv('ANTHROPIC_API_KEY')
+if not api_key:
+    logger.warning("ANTHROPIC_API_KEY not found in environment variables. Chat functionality will be disabled.")
+
+# Initialize Claude client only if API key exists
+claude_client = None
+if api_key:
+    claude_client = anthropic.Anthropic(api_key=api_key)
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -90,10 +95,7 @@ def get_analysis():
         dashboard_data = {
             'risk_distribution': analysis_results['closure_risk_analysis']['risk_distribution'],
             'regional_stats': analysis_results['closure_risk_analysis']['regional_stats'],
-            'correlation': {
-                'coefficient': analysis_results['correlation']['coefficient'],
-                'details': analysis_results['correlation']['details']
-            },
+            'correlation': analysis_results['correlation']['details'],  # 상관관계 데이터를 직접 전달
             'time_series': analysis_results['closure_risk_analysis']['time_series']
         }
         
@@ -130,7 +132,23 @@ def map_view():
 @app.route('/analysis')
 def analysis_view():
     """상세 분석 페이지"""
-    return render_template('analysis.html')
+    try:
+        # 분석 실행
+        analysis_results = analyzer.run()
+        
+        # 정책 제안 생성
+        policy = analyzer.generate_policy_recommendations(analysis_results)
+        
+        return render_template('analysis.html', policy=policy)
+    except Exception as e:
+        logger.error(f"Error in analysis view: {str(e)}")
+        return render_template('analysis.html', policy={
+            'title': '정책 제안',
+            'goals': [],
+            'details': {},
+            'expected_effects': [],
+            'implementation': {}
+        })
 
 @app.route('/kess_data')
 def kess_data():
@@ -508,44 +526,45 @@ def serve_static(filename):
 
 @app.route('/chat', methods=['POST'])
 def chat():
-    data = request.get_json()
-    user_message = data.get('message', '')
-    
     try:
-        # Check if API key exists
-        api_key = os.getenv("ANTHROPIC_API_KEY")
-        if not api_key:
-            return jsonify({'error': 'ANTHROPIC_API_KEY not found in environment variables'}), 500
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No JSON data received'}), 400
             
-        client = anthropic.Anthropic(
-            api_key=api_key
-        )
-        
-        message = client.messages.create(
+        user_message = data.get('message', '')
+        if not user_message:
+            return jsonify({'error': 'No message provided'}), 400
+            
+        # Check if API key and client are available
+        if not claude_client:
+            logger.error("Chat functionality is disabled: ANTHROPIC_API_KEY not configured")
+            return jsonify({'error': 'Chat functionality is currently unavailable'}), 503
+            
+        # Create message
+        message = claude_client.messages.create(
             model="claude-3-7-sonnet-20250219",
-            max_tokens=20000,
-            temperature=1,
-            system="AI CHATBOT AND THE ANSWER SHOULD NOT BE MORE THAN 3 SENTENCES. DON'T ANSWER IN DETAILED WAYS",
+            max_tokens=1024,
             messages=[
                 {
                     "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": user_message
-                        }
-                    ]
+                    "content": user_message
                 }
             ]
         )
         
-        return jsonify({'response': message.content[0].text})
+        # Extract response text
+        response_text = message.content[0].text if message.content else "No response generated"
+        
+        return jsonify({'response': response_text})
+        
+    except anthropic.APIError as e:
+        logger.error(f"Claude API error: {str(e)}")
+        return jsonify({'error': 'Error communicating with Claude API'}), 500
     except Exception as e:
-        # Log the full error for debugging
-        print(f"Error in chat route: {str(e)}")
+        logger.error(f"Unexpected error in chat route: {str(e)}")
         import traceback
-        print(f"Traceback: {traceback.format_exc()}")
-        return jsonify({'error': f'Error processing request: {str(e)}'}), 500
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        return jsonify({'error': 'An unexpected error occurred'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001) 

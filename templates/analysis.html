@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}정책 제안{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">{{ policy.title }}</h1>
+
+    <!-- 정책 목표 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="card-title">정책 목표</h2>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                {% for goal in policy.goals %}
+                <li class="list-group-item">{{ goal }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- 정책 세부 방안 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="card-title">정책 세부 방안</h2>
+        </div>
+        <div class="card-body">
+            {% for section_key, section in policy.details.items() %}
+            <div class="mb-4">
+                <h3>{{ section.title }}</h3>
+                {% for item in section.items %}
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h4 class="card-title">{{ item.title }}</h4>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ item.description }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 기대 효과 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="card-title">기대 효과</h2>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                {% for effect in policy.expected_effects %}
+                <li class="list-group-item">{{ effect }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- 재정 및 운영 방안 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="card-title">재정 및 운영 방안</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">재정 지원</h4>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ policy.implementation.budget }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">운영 주체</h4>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ policy.implementation.operation }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">성과 평가</h4>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ policy.implementation.evaluation }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans, DBSCAN
-import geopandas as gpd
 import os
 import logging
 
@@ -28,7 +27,8 @@ class DataProcessor:
         self.facilities_data = pd.read_csv(os.path.join(self.raw_data_dir, 'facilities_data.csv'))
         self.closed_schools = pd.read_csv(os.path.join(self.raw_data_dir, 'closed_schools.csv'))
         self.multicultural_data = pd.read_csv(os.path.join(self.raw_data_dir, 'multicultural_data.csv'))
-        self.geo_data = gpd.read_file(os.path.join(self.raw_data_dir, 'geospatial_data.geojson'))
+        # Remove geospatial data loading
+        # self.geo_data = gpd.read_file(os.path.join(self.raw_data_dir, 'geospatial_data.geojson'))
 
     def calculate_school_closure_risk_index(self):
         """폐교위험지수 계산"""
@@ -102,15 +102,15 @@ class DataProcessor:
             encoding='utf-8-sig'
         )
         
-        # GeoJSON으로 저장
-        gdf = gpd.GeoDataFrame(
-            self.school_data,
-            geometry=self.geo_data.geometry
-        )
-        gdf.to_file(
-            os.path.join(self.processed_data_dir, 'processed_geospatial_data.geojson'),
-            driver='GeoJSON'
-        )
+        # Remove GeoJSON saving
+        # gdf = gpd.GeoDataFrame(
+        #     self.school_data,
+        #     geometry=self.geo_data.geometry
+        # )
+        # gdf.to_file(
+        #     os.path.join(self.processed_data_dir, 'processed_geospatial_data.geojson'),
+        #     driver='GeoJSON'
+        # )
 
     def run(self):
         """전체 데이터 처리 프로세스 실행"""

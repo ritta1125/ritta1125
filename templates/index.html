@@ -3,16 +3,6 @@
 {% block title %}홈 - 폐교 위험 지역과 다문화 가정 분포 분석{% endblock %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Website</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
-</head>
-<body>
     <div class="row">
         <div class="col-md-12">
             <div class="jumbotron">
@@ -59,20 +49,6 @@
             </div>
         </div>
     </div>
+{% endblock %}
 
-    <!-- Chat Interface -->
-    <div id="chat-interface">
-        <h2>Chat with Assistant</h2>
-        <div id="chat-container">
-            <div id="chat-messages"></div>
-            <div class="chat-input-container">
-                <input type="text" id="chat-input" placeholder="Type your message...">
-                <button onclick="sendMessage()">Send</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-</body>
-</html>
-{% endblock %} 
+{% block scripts %}{% endblock %} 
