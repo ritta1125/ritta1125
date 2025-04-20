@@ -1,194 +1,198 @@
-{% extends "base.html" %}
-
-{% block title %}대시보드 - 폐교 위험 지역과 다문화 가정 분포 분석{% endblock %}
-
-{% block extra_css %}
-<link href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css" rel="stylesheet">
-{% endblock %}
-
-{% block content %}
-<div class="row">
-    <div class="col-md-12">
-        <h2 class="mb-4">대시보드</h2>
-    </div>
-</div>
-
-<div class="row">
-    <!-- 위험도 분포 지도 -->
-    <div class="col-md-8">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">폐교 위험도 분포</h5>
-            </div>
-            <div class="card-body">
-                <div id="riskMap" style="height: 400px;"></div>
-            </div>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대시보드 - 폐교 위험 지역과 다문화 가정 분포 분석</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css" rel="stylesheet">
+</head>
+<body>
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">대시보드</h2>
         </div>
     </div>
-    
-    <!-- 요약 통계 -->
-    <div class="col-md-4">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">요약 통계</h5>
+
+    <div class="row">
+        <!-- 위험도 분포 지도 -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">폐교 위험도 분포</h5>
+                </div>
+                <div class="card-body">
+                    <div id="riskMap" style="height: 400px;"></div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-6">
-                        <div class="stat-card">
-                            <h6>고위험 지역</h6>
-                            <h3 id="highRiskCount">-</h3>
+        </div>
+        
+        <!-- 요약 통계 -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">요약 통계</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="stat-card">
+                                <h6>고위험 지역</h6>
+                                <h3 id="highRiskCount">-</h3>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="stat-card">
-                            <h6>다문화 비율</h6>
-                            <h3 id="multiculturalRatio">-</h3>
+                        <div class="col-6">
+                            <div class="stat-card">
+                                <h6>다문화 비율</h6>
+                                <h3 id="multiculturalRatio">-</h3>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="row">
-    <!-- 상관관계 분석 -->
-    <div class="col-md-6">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">상관관계 분석</h5>
+    <div class="row">
+        <!-- 상관관계 분석 -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">상관관계 분석</h5>
+                </div>
+                <div class="card-body">
+                    <div id="correlationPlot" style="height: 300px;"></div>
+                </div>
             </div>
-            <div class="card-body">
-                <div id="correlationPlot" style="height: 300px;"></div>
+        </div>
+        
+        <!-- 지역별 비교 -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">지역별 비교</h5>
+                </div>
+                <div class="card-body">
+                    <div id="regionalComparison" style="height: 300px;"></div>
+                </div>
             </div>
         </div>
     </div>
-    
-    <!-- 지역별 비교 -->
-    <div class="col-md-6">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">지역별 비교</h5>
-            </div>
-            <div class="card-body">
-                <div id="regionalComparison" style="height: 300px;"></div>
+
+    <div class="row">
+        <!-- 시계열 분석 -->
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">시계열 분석</h5>
+                </div>
+                <div class="card-body">
+                    <div id="timeSeriesPlot" style="height: 300px;"></div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="row">
-    <!-- 시계열 분석 -->
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">시계열 분석</h5>
-            </div>
-            <div class="card-body">
-                <div id="timeSeriesPlot" style="height: 300px;"></div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script>
-    // 데이터 로드 및 시각화
-    $(document).ready(function() {
-        // API에서 데이터 가져오기
-        $.get('/api/analysis', function(data) {
-            // 통계 업데이트
-            $('#highRiskCount').text(data.high_risk_areas.length);
-            $('#multiculturalRatio').text(
-                (data.multicultural_analysis.avg_ratio * 100).toFixed(1) + '%'
-            );
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+        // 데이터 로드 및 시각화
+        $(document).ready(function() {
+            // API에서 데이터 가져오기
+            $.get('static/data/analysis.json', function(data) {
+                // 통계 업데이트
+                $('#highRiskCount').text(data.high_risk_areas.length);
+                $('#multiculturalRatio').text(
+                    (data.multicultural_analysis.avg_ratio * 100).toFixed(1) + '%'
+                );
+                
+                // 시각화 생성
+                createCorrelationPlot(data.correlation);
+                createRegionalComparison(data.regional_stats);
+                createTimeSeriesPlot(data.time_series);
+            });
             
-            // 시각화 생성
-            createCorrelationPlot(data.correlation);
-            createRegionalComparison(data.regional_stats);
-            createTimeSeriesPlot(data.time_series);
+            // 지도 생성
+            createRiskMap();
         });
         
-        // 지도 생성
-        createRiskMap();
-    });
-    
-    function createRiskMap() {
-        // Leaflet 지도 생성
-        var map = L.map('riskMap').setView([36.5, 127.5], 7);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+        function createRiskMap() {
+            // Leaflet 지도 생성
+            var map = L.map('riskMap').setView([36.5, 127.5], 7);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // 위험도 데이터 표시
+            $.get('static/data/visualization.json', function(data) {
+                // 지도에 마커 추가
+                // TODO: 실제 데이터로 구현
+            });
+        }
         
-        // 위험도 데이터 표시
-        $.get('/api/visualization', function(data) {
-            // 지도에 마커 추가
-            // TODO: 실제 데이터로 구현
-        });
-    }
-    
-    function createCorrelationPlot(data) {
-        // Plotly 상관관계 그래프 생성
-        var trace = {
-            x: data.x,
-            y: data.y,
-            mode: 'markers',
-            type: 'scatter'
-        };
+        function createCorrelationPlot(data) {
+            // Plotly 상관관계 그래프 생성
+            var trace = {
+                x: data.x,
+                y: data.y,
+                mode: 'markers',
+                type: 'scatter'
+            };
+            
+            var layout = {
+                title: '폐교위험도와 다문화비중의 관계',
+                xaxis: {title: '폐교위험도'},
+                yaxis: {title: '다문화비중'}
+            };
+            
+            Plotly.newPlot('correlationPlot', [trace], layout);
+        }
         
-        var layout = {
-            title: '폐교위험도와 다문화비중의 관계',
-            xaxis: {title: '폐교위험도'},
-            yaxis: {title: '다문화비중'}
-        };
+        function createRegionalComparison(data) {
+            // Plotly 지역별 비교 그래프 생성
+            var trace = {
+                x: data.regions,
+                y: data.values,
+                type: 'bar'
+            };
+            
+            var layout = {
+                title: '지역별 폐교위험도 비교',
+                xaxis: {title: '지역'},
+                yaxis: {title: '위험도'}
+            };
+            
+            Plotly.newPlot('regionalComparison', [trace], layout);
+        }
         
-        Plotly.newPlot('correlationPlot', [trace], layout);
-    }
-    
-    function createRegionalComparison(data) {
-        // Plotly 지역별 비교 그래프 생성
-        var trace = {
-            x: data.regions,
-            y: data.values,
-            type: 'bar'
-        };
-        
-        var layout = {
-            title: '지역별 폐교위험도 비교',
-            xaxis: {title: '지역'},
-            yaxis: {title: '위험도'}
-        };
-        
-        Plotly.newPlot('regionalComparison', [trace], layout);
-    }
-    
-    function createTimeSeriesPlot(data) {
-        // Plotly 시계열 그래프 생성
-        var trace1 = {
-            x: data.years,
-            y: data.closed_schools,
-            name: '폐교 수',
-            type: 'scatter'
-        };
-        
-        var trace2 = {
-            x: data.years,
-            y: data.multicultural_students,
-            name: '다문화 학생 수',
-            type: 'scatter'
-        };
-        
-        var layout = {
-            title: '연도별 추이',
-            xaxis: {title: '연도'},
-            yaxis: {title: '수'}
-        };
-        
-        Plotly.newPlot('timeSeriesPlot', [trace1, trace2], layout);
-    }
-</script>
-{% endblock %} 
+        function createTimeSeriesPlot(data) {
+            // Plotly 시계열 그래프 생성
+            var trace1 = {
+                x: data.years,
+                y: data.closed_schools,
+                name: '폐교 수',
+                type: 'scatter'
+            };
+            
+            var trace2 = {
+                x: data.years,
+                y: data.multicultural_students,
+                name: '다문화 학생 수',
+                type: 'scatter'
+            };
+            
+            var layout = {
+                title: '연도별 추이',
+                xaxis: {title: '연도'},
+                yaxis: {title: '수'}
+            };
+            
+            Plotly.newPlot('timeSeriesPlot', [trace1, trace2], layout);
+        }
+    </script>
+</body>
+</html> 
