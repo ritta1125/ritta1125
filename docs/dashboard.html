@@ -130,7 +130,38 @@
             // 위험도 데이터 표시
             $.get('static/data/visualization.json', function(data) {
                 // 지도에 마커 추가
-                // TODO: 실제 데이터로 구현
+                data.map_data.forEach(function(region) {
+                    // 위험도에 따른 마커 색상 설정
+                    var color;
+                    if (region.closure_risk >= 0.7) {
+                        color = '#ff4444'; // 높은 위험
+                    } else if (region.closure_risk >= 0.5) {
+                        color = '#ffa700'; // 중간 위험
+                    } else {
+                        color = '#00C851'; // 낮은 위험
+                    }
+                    
+                    // 마커 생성
+                    var marker = L.circleMarker([region.lat, region.lon], {
+                        radius: 10,
+                        fillColor: color,
+                        color: '#000',
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    }).addTo(map);
+                    
+                    // 팝업 정보 설정
+                    var popupContent = `
+                        <div class="map-popup">
+                            <h5>${region.region}</h5>
+                            <p>폐교위험도: ${(region.closure_risk * 100).toFixed(1)}%</p>
+                            <p>다문화비중: ${(region.multicultural_ratio * 100).toFixed(1)}%</p>
+                        </div>
+                    `;
+                    
+                    marker.bindPopup(popupContent);
+                });
             });
         }
         
