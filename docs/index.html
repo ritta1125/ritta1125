@@ -1,47 +1,57 @@
-{% extends "base.html" %}
-
-{% block title %}홈 - 폐교 위험 지역과 다문화 가정 분포 분석{% endblock %}
-
-{% block content %}
-<div class="row">
-    <div class="col-md-12">
-        <div class="jumbotron">
-            <h1 class="display-4">폐교 위험 지역과 다문화 가정 분포 분석</h1>
-            <p class="lead">전국 단위의 공간 데이터를 기반으로 폐교 위험도와 다문화 가정 분포 간의 관계를 분석합니다.</p>
-            <hr class="my-4">
-            <p>이 프로젝트는 교육 정책, 학교 통폐합 정책, 다문화 지원 정책의 데이터 기반 의사결정을 지원합니다.</p>
-            <a class="btn btn-primary btn-lg" href="/dashboard" role="button">대시보드 보기</a>
-        </div>
-    </div>
-</div>
-
-<div class="row mt-4">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">폐교 위험도 분석</h5>
-                <p class="card-text">지역별 폐교 위험도를 분석하고 시각화합니다.</p>
-                <a href="/map" class="btn btn-outline-primary">지도 보기</a>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>홈 - 폐교 위험 지역과 다문화 가정 분포 분석</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="jumbotron">
+                <h1 class="display-4">폐교 위험 지역과 다문화 가정 분포 분석</h1>
+                <p class="lead">전국 단위의 공간 데이터를 기반으로 폐교 위험도와 다문화 가정 분포 간의 관계를 분석합니다.</p>
+                <hr class="my-4">
+                <p>이 프로젝트는 교육 정책, 학교 통폐합 정책, 다문화 지원 정책의 데이터 기반 의사결정을 지원합니다.</p>
+                <a class="btn btn-primary btn-lg" href="dashboard.html" role="button">대시보드 보기</a>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title">다문화 가정 분포</h5>
-                <p class="card-text">전국 다문화 가정 분포 현황을 확인하세요.</p>
-                <a href="{{ url_for('multiculture_view') }}" class="btn btn-primary">분석 보기</a>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">폐교 위험도 분석</h5>
+                    <p class="card-text">지역별 폐교 위험도를 분석하고 시각화합니다.</p>
+                    <a href="map.html" class="btn btn-outline-primary">지도 보기</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">다문화 가정 분포</h5>
+                    <p class="card-text">전국 다문화 가정 분포 현황을 확인하세요.</p>
+                    <a href="multiculture.html" class="btn btn-primary">분석 보기</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">정책 제안</h5>
+                    <p class="card-text">데이터 기반의 정책 제안을 확인하세요.</p>
+                    <a href="analysis.html#policy" class="btn btn-outline-primary">제안 보기</a>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">정책 제안</h5>
-                <p class="card-text">데이터 기반의 정책 제안을 확인하세요.</p>
-                <a href="/analysis#policy" class="btn btn-outline-primary">제안 보기</a>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %} 
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html> 
