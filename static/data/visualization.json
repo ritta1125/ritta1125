@@ -1,0 +1,136 @@
+{
+    "correlation": {
+        "x": [0.85, 0.78, 0.72, 0.68, 0.65, 0.62, 0.58, 0.55, 0.52, 0.48],
+        "y": [0.12, 0.15, 0.18, 0.14, 0.16, 0.13, 0.11, 0.09, 0.08, 0.07]
+    },
+    "regional_stats": {
+        "regions": ["서울", "부산", "대구", "인천", "광주", "대전", "울산", "세종", "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"],
+        "values": [0.78, 0.68, 0.65, 0.72, 0.55, 0.58, 0.62, 0.45, 0.85, 0.52, 0.48, 0.55, 0.58, 0.62, 0.65, 0.68, 0.45]
+    },
+    "time_series": {
+        "years": [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023],
+        "closed_schools": [120, 135, 150, 165, 180, 195, 210, 225, 240],
+        "multicultural_students": [45000, 48000, 51000, 54000, 57000, 60000, 63000, 66000, 69000]
+    },
+    "map_data": [
+        {
+            "region": "서울",
+            "lat": 37.5665,
+            "lon": 126.9780,
+            "closure_risk": 0.78,
+            "multicultural_ratio": 0.15
+        },
+        {
+            "region": "부산",
+            "lat": 35.1796,
+            "lon": 129.0756,
+            "closure_risk": 0.68,
+            "multicultural_ratio": 0.14
+        },
+        {
+            "region": "대구",
+            "lat": 35.8714,
+            "lon": 128.6014,
+            "closure_risk": 0.65,
+            "multicultural_ratio": 0.16
+        },
+        {
+            "region": "인천",
+            "lat": 37.4563,
+            "lon": 126.7052,
+            "closure_risk": 0.72,
+            "multicultural_ratio": 0.18
+        },
+        {
+            "region": "광주",
+            "lat": 35.1595,
+            "lon": 126.8526,
+            "closure_risk": 0.55,
+            "multicultural_ratio": 0.12
+        },
+        {
+            "region": "대전",
+            "lat": 36.3504,
+            "lon": 127.3845,
+            "closure_risk": 0.58,
+            "multicultural_ratio": 0.13
+        },
+        {
+            "region": "울산",
+            "lat": 35.5384,
+            "lon": 129.3114,
+            "closure_risk": 0.62,
+            "multicultural_ratio": 0.11
+        },
+        {
+            "region": "세종",
+            "lat": 36.4800,
+            "lon": 127.2890,
+            "closure_risk": 0.45,
+            "multicultural_ratio": 0.09
+        },
+        {
+            "region": "경기",
+            "lat": 37.2750,
+            "lon": 127.0000,
+            "closure_risk": 0.85,
+            "multicultural_ratio": 0.12
+        },
+        {
+            "region": "강원",
+            "lat": 37.8228,
+            "lon": 128.3445,
+            "closure_risk": 0.52,
+            "multicultural_ratio": 0.08
+        },
+        {
+            "region": "충북",
+            "lat": 36.8000,
+            "lon": 127.7000,
+            "closure_risk": 0.48,
+            "multicultural_ratio": 0.07
+        },
+        {
+            "region": "충남",
+            "lat": 36.5000,
+            "lon": 126.8000,
+            "closure_risk": 0.55,
+            "multicultural_ratio": 0.10
+        },
+        {
+            "region": "전북",
+            "lat": 35.8200,
+            "lon": 127.1089,
+            "closure_risk": 0.58,
+            "multicultural_ratio": 0.11
+        },
+        {
+            "region": "전남",
+            "lat": 34.8160,
+            "lon": 126.9910,
+            "closure_risk": 0.62,
+            "multicultural_ratio": 0.09
+        },
+        {
+            "region": "경북",
+            "lat": 36.4919,
+            "lon": 128.6000,
+            "closure_risk": 0.65,
+            "multicultural_ratio": 0.10
+        },
+        {
+            "region": "경남",
+            "lat": 35.4606,
+            "lon": 128.2132,
+            "closure_risk": 0.68,
+            "multicultural_ratio": 0.12
+        },
+        {
+            "region": "제주",
+            "lat": 33.4890,
+            "lon": 126.5000,
+            "closure_risk": 0.45,
+            "multicultural_ratio": 0.08
+        }
+    ]
+} 
