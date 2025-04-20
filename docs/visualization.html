@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시각화 - 폐교 위험 지역과 다문화 가정 분포 분석</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/chat.css">
+</head>
+<body>
+    <header>
+        <h1>폐교 위험 지역과 다문화 가정 분포 분석</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">홈</a></li>
+                <li><a href="analysis.html">분석</a></li>
+                <li><a href="visualization.html">시각화</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="visualization-section">
+            <h2>데이터 시각화</h2>
+            
+            <div class="visualization-container">
+                <h3>폐교 위험도 지도</h3>
+                <img src="static/images/closure_risk_map.png" alt="폐교 위험도 지도">
+                <p>전국 폐교 위험도 분포를 보여주는 지도입니다.</p>
+            </div>
+
+            <div class="visualization-container">
+                <h3>다문화 가정 분포</h3>
+                <img src="static/images/multiculture_distribution.png" alt="다문화 가정 분포">
+                <p>전국 다문화 가정 분포 현황을 보여주는 지도입니다.</p>
+            </div>
+
+            <div class="visualization-container">
+                <h3>상관관계 분석</h3>
+                <img src="static/images/correlation_analysis.png" alt="상관관계 분석">
+                <p>폐교 위험도와 다문화 가정 분포 간의 상관관계를 보여주는 그래프입니다.</p>
+            </div>
+        </section>
+    </main>
+
+    <div id="chat-widget">
+        <div class="chat-header">
+            <h3>챗봇</h3>
+            <button class="close-chat">×</button>
+        </div>
+        <div class="chat-messages"></div>
+        <div class="chat-input">
+            <input type="text" placeholder="메시지를 입력하세요...">
+            <button>전송</button>
+        </div>
+    </div>
+
+    <script src="static/js/main.js"></script>
+</body>
+</html> 

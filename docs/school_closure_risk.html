@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block title %}폐교 위험도 분석{% endblock %}
+
+{% block content %}
+<main class="container my-4">
+<div class="container mt-4">
+    <h1 class="mb-4">폐교 위험도 분석</h1>
+    
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Region Buttons -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">시도교육청 선택</h5>
+                    <div class="btn-group" role="group" id="regionButtons">
+                        <a href="/school_closure_risk" class="btn btn-outline-primary {% if not selected_region or selected_region == 'all' %}active{% endif %}">전체</a>
+                        <a href="/school_closure_risk?region=강원" class="btn btn-outline-primary {% if selected_region == '강원' %}active{% endif %}">강원</a>
+                        <a href="/school_closure_risk?region=경기" class="btn btn-outline-primary {% if selected_region == '경기' %}active{% endif %}">경기</a>
+                        <a href="/school_closure_risk?region=경남" class="btn btn-outline-primary {% if selected_region == '경남' %}active{% endif %}">경남</a>
+                        <a href="/school_closure_risk?region=경북" class="btn btn-outline-primary {% if selected_region == '경북' %}active{% endif %}">경북</a>
+                        <a href="/school_closure_risk?region=광주" class="btn btn-outline-primary {% if selected_region == '광주' %}active{% endif %}">광주</a>
+                        <a href="/school_closure_risk?region=대구" class="btn btn-outline-primary {% if selected_region == '대구' %}active{% endif %}">대구</a>
+                        <a href="/school_closure_risk?region=대전" class="btn btn-outline-primary {% if selected_region == '대전' %}active{% endif %}">대전</a>
+                        <a href="/school_closure_risk?region=부산" class="btn btn-outline-primary {% if selected_region == '부산' %}active{% endif %}">부산</a>
+                        <a href="/school_closure_risk?region=서울" class="btn btn-outline-primary {% if selected_region == '서울' %}active{% endif %}">서울</a>
+                        <a href="/school_closure_risk?region=세종" class="btn btn-outline-primary {% if selected_region == '세종' %}active{% endif %}">세종</a>
+                        <a href="/school_closure_risk?region=울산" class="btn btn-outline-primary {% if selected_region == '울산' %}active{% endif %}">울산</a>
+                        <a href="/school_closure_risk?region=인천" class="btn btn-outline-primary {% if selected_region == '인천' %}active{% endif %}">인천</a>
+                        <a href="/school_closure_risk?region=전남" class="btn btn-outline-primary {% if selected_region == '전남' %}active{% endif %}">전남</a>
+                        <a href="/school_closure_risk?region=전북" class="btn btn-outline-primary {% if selected_region == '전북' %}active{% endif %}">전북</a>
+                        <a href="/school_closure_risk?region=제주" class="btn btn-outline-primary {% if selected_region == '제주' %}active{% endif %}">제주</a>
+                        <a href="/school_closure_risk?region=충남" class="btn btn-outline-primary {% if selected_region == '충남' %}active{% endif %}">충남</a>
+                        <a href="/school_closure_risk?region=충북" class="btn btn-outline-primary {% if selected_region == '충북' %}active{% endif %}">충북</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">총 폐교 수</h5>
+                    <h2 class="card-text" id="totalSchools">-</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">평균 폐교 연도</h5>
+                    <h2 class="card-text" id="avgYear">-</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">최근 5년 폐교 수</h5>
+                    <h2 class="card-text" id="recentClosures">-</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">활용 중인 폐교</h5>
+                    <h2 class="card-text" id="utilizedSchools">-</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Region Comparison Charts -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">시도교육청별 폐교 수 비교</h5>
+                </div>
+                <div class="card-body">
+                    <div id="regionComparisonChart"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">시도교육청별 평균 폐교 연도</h5>
+                </div>
+                <div class="card-body">
+                    <div id="regionYearComparisonChart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Selected Region Charts -->
+    <div id="selectedRegionCharts">
+        <!-- First Row of Charts -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">폐교 연도 분포</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="closureYearChart"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">학교 급별 분포</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="schoolLevelChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- School Closure Table -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">폐교 정보</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped" id="schoolClosureTable">
+                                <thead>
+                                    <tr>
+                                        <th>폐교명</th>
+                                        <th>폐교연도</th>
+                                        <th>지역교육청</th>
+                                        <th>급별</th>
+                                        <th>활용현황</th>
+                                        <th>주소</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for school in closure_risk_data %}
+                                    <tr>
+                                        <td>{{ school.school_name }}</td>
+                                        <td>{{ school.closure_year }}</td>
+                                        <td>{{ school.local_office }}</td>
+                                        <td>{{ school.school_level }}</td>
+                                        <td>{{ school.utilization_status }}</td>
+                                        <td>{{ school.address }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script>
+    // Initialize DataTable
+    $(document).ready(function() {
+        $('#schoolClosureTable').DataTable({
+            "order": [[1, "desc"]], // Sort by closure year by default
+            "pageLength": 10,
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.11.5/i18n/ko.json"
+            }
+        });
+    });
+
+    // Update summary cards
+    function updateSummaryCards(data) {
+        if (data.length > 0) {
+            // Total schools
+            $('#totalSchools').text(data.length);
+            
+            // Average closure year
+            const years = data.map(school => parseInt(school.closure_year));
+            const avgYear = Math.round(years.reduce((a, b) => a + b, 0) / years.length);
+            $('#avgYear').text(avgYear);
+            
+            // Recent closures (last 5 years)
+            const currentYear = new Date().getFullYear();
+            const recentClosures = data.filter(school => 
+                parseInt(school.closure_year) >= currentYear - 5
+            ).length;
+            $('#recentClosures').text(recentClosures);
+            
+            // Utilized schools
+            const utilizedSchools = data.filter(school => 
+                school.utilization_status !== '미활용'
+            ).length;
+            $('#utilizedSchools').text(utilizedSchools);
+        }
+    }
+
+    // Update charts
+    function updateCharts(data) {
+        if (data.length > 0) {
+            // Closure year distribution
+            const yearCounts = {};
+            data.forEach(school => {
+                const year = school.closure_year;
+                yearCounts[year] = (yearCounts[year] || 0) + 1;
+            });
+            
+            const yearTrace = {
+                x: Object.keys(yearCounts),
+                y: Object.values(yearCounts),
+                type: 'bar',
+                name: '폐교 수'
+            };
+            
+            Plotly.newPlot('closureYearChart', [yearTrace], {
+                title: '폐교 연도별 분포',
+                xaxis: {title: '연도'},
+                yaxis: {title: '폐교 수'}
+            });
+            
+            // School level distribution
+            const levelCounts = {};
+            data.forEach(school => {
+                const level = school.school_level;
+                levelCounts[level] = (levelCounts[level] || 0) + 1;
+            });
+            
+            const levelTrace = {
+                labels: Object.keys(levelCounts),
+                values: Object.values(levelCounts),
+                type: 'pie',
+                name: '학교 급별'
+            };
+            
+            Plotly.newPlot('schoolLevelChart', [levelTrace], {
+                title: '학교 급별 분포'
+            });
+        }
+    }
+
+    // Initialize with current data
+    const closureRiskData = {{ closure_risk_data|tojson|safe }};
+    updateSummaryCards(closureRiskData);
+    updateCharts(closureRiskData);
+</script>
+</main>
+{% endblock %} 
