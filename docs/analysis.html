@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>분석 - 폐교 위험 지역과 다문화 가정 분포 분석</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="static/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-school me-2"></i>학교-다문화 분석
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">홈</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">대시보드</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="map.html">지도</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="analysis.html">분석</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="kess_data.html">KESS 데이터</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="school_closure_risk.html">폐교 위험도 분석</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="closure_risk_map.html">폐교 위험도 지도</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-4">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="mb-4">분석 결과</h1>
+            </div>
+        </div>
+
+        <!-- Policy Recommendations Section -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title mb-0">정책 제안</h2>
+                    </div>
+                    <div class="card-body">
+                        <!-- Priority Areas -->
+                        <div class="mb-4">
+                            <h3>우선 지원 지역</h3>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>지역</th>
+                                            <th>학교명</th>
+                                            <th>폐교위험도</th>
+                                            <th>다문화비중</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="priorityAreas">
+                                        <!-- Data will be loaded from JSON -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Support Measures -->
+                        <div class="mb-4">
+                            <h3>지원 방안</h3>
+                            <ul class="list-group" id="supportMeasures">
+                                <!-- Data will be loaded from JSON -->
+                            </ul>
+                        </div>
+
+                        <!-- Monitoring Suggestions -->
+                        <div>
+                            <h3>모니터링 제안</h3>
+                            <ul class="list-group" id="monitoringSuggestions">
+                                <!-- Data will be loaded from JSON -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light py-4 mt-4">
+        <div class="container text-center">
+            <p class="mb-0">© 2024 폐교 위험 지역과 다문화 가정 분포 분석 프로젝트</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Custom JS -->
+    <script>
+        $(document).ready(function() {
+            // Load policy recommendations from JSON
+            $.get('static/data/analysis_results.json', function(data) {
+                const recommendations = data.policy_recommendations;
+                
+                // Populate priority areas table
+                const priorityAreasHtml = recommendations.priority_areas.map(area => `
+                    <tr>
+                        <td>${area.region}</td>
+                        <td>${area.school_name}</td>
+                        <td>${area.closure_risk_index.toFixed(2)}</td>
+                        <td>${(area.multicultural_ratio * 100).toFixed(1)}%</td>
+                    </tr>
+                `).join('');
+                $('#priorityAreas').html(priorityAreasHtml);
+                
+                // Populate support measures
+                const supportMeasuresHtml = recommendations.support_measures.map(measure => `
+                    <li class="list-group-item">${measure}</li>
+                `).join('');
+                $('#supportMeasures').html(supportMeasuresHtml);
+                
+                // Populate monitoring suggestions
+                const monitoringSuggestionsHtml = recommendations.monitoring_suggestions.map(suggestion => `
+                    <li class="list-group-item">${suggestion}</li>
+                `).join('');
+                $('#monitoringSuggestions').html(monitoringSuggestionsHtml);
+            });
+        });
+    </script>
+</body>
+</html> 
