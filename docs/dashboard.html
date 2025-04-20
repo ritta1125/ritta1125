@@ -103,12 +103,13 @@
         // 데이터 로드 및 시각화
         $(document).ready(function() {
             // API에서 데이터 가져오기
-            $.get('static/data/analysis.json', function(data) {
+            $.get('static/data/visualization.json', function(data) {
                 // 통계 업데이트
-                $('#highRiskCount').text(data.high_risk_areas.length);
-                $('#multiculturalRatio').text(
-                    (data.multicultural_analysis.avg_ratio * 100).toFixed(1) + '%'
-                );
+                const highRiskCount = data.map_data.filter(region => region.closure_risk >= 0.7).length;
+                const avgMulticulturalRatio = data.map_data.reduce((sum, region) => sum + region.multicultural_ratio, 0) / data.map_data.length;
+                
+                $('#highRiskCount').text(highRiskCount);
+                $('#multiculturalRatio').text((avgMulticulturalRatio * 100).toFixed(1) + '%');
                 
                 // 시각화 생성
                 createCorrelationPlot(data.correlation);
@@ -171,13 +172,25 @@
                 x: data.x,
                 y: data.y,
                 mode: 'markers',
-                type: 'scatter'
+                type: 'scatter',
+                marker: {
+                    size: 10,
+                    color: '#007bff',
+                    opacity: 0.7
+                }
             };
             
             var layout = {
                 title: '폐교위험도와 다문화비중의 관계',
-                xaxis: {title: '폐교위험도'},
-                yaxis: {title: '다문화비중'}
+                xaxis: {
+                    title: '폐교위험도',
+                    range: [0, 1]
+                },
+                yaxis: {
+                    title: '다문화비중',
+                    range: [0, 0.2]
+                },
+                showlegend: false
             };
             
             Plotly.newPlot('correlationPlot', [trace], layout);
@@ -188,13 +201,27 @@
             var trace = {
                 x: data.regions,
                 y: data.values,
-                type: 'bar'
+                type: 'bar',
+                marker: {
+                    color: data.values.map(value => {
+                        if (value >= 0.7) return '#ff4444';
+                        if (value >= 0.5) return '#ffa700';
+                        return '#00C851';
+                    })
+                }
             };
             
             var layout = {
                 title: '지역별 폐교위험도 비교',
-                xaxis: {title: '지역'},
-                yaxis: {title: '위험도'}
+                xaxis: {
+                    title: '지역',
+                    tickangle: 45
+                },
+                yaxis: {
+                    title: '위험도',
+                    range: [0, 1]
+                },
+                showlegend: false
             };
             
             Plotly.newPlot('regionalComparison', [trace], layout);
@@ -206,20 +233,46 @@
                 x: data.years,
                 y: data.closed_schools,
                 name: '폐교 수',
-                type: 'scatter'
+                type: 'scatter',
+                line: {
+                    color: '#ff4444',
+                    width: 2
+                }
             };
             
             var trace2 = {
                 x: data.years,
                 y: data.multicultural_students,
                 name: '다문화 학생 수',
-                type: 'scatter'
+                type: 'scatter',
+                yaxis: 'y2',
+                line: {
+                    color: '#007bff',
+                    width: 2
+                }
             };
             
             var layout = {
                 title: '연도별 추이',
-                xaxis: {title: '연도'},
-                yaxis: {title: '수'}
+                xaxis: {
+                    title: '연도',
+                    dtick: 1
+                },
+                yaxis: {
+                    title: '폐교 수',
+                    range: [0, 300]
+                },
+                yaxis2: {
+                    title: '다문화 학생 수',
+                    overlaying: 'y',
+                    side: 'right',
+                    range: [40000, 70000]
+                },
+                showlegend: true,
+                legend: {
+                    x: 1,
+                    y: 1
+                }
             };
             
             Plotly.newPlot('timeSeriesPlot', [trace1, trace2], layout);
