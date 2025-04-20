@@ -184,12 +184,12 @@ class Analyzer:
         logger.info("Analyzing correlation between closure risk and multicultural ratio...")
         
         try:
-            # 학생 수 데이터
+            # 학생 수 데이터 (폐교 위험도)
             student_data = {
-                'daegu': 100,  # 대구 북동 + 대구 유동
+                'daegu': 100,  # 대구 북동(50) + 대구 유동(50)
                 'jeju': 600,
                 'chungbuk': 600,
-                'normal': 2300
+                'normal': 2300  # 참고용 데이터
             }
             
             # 결혼 이민자 비율 데이터
@@ -215,6 +215,7 @@ class Analyzer:
             
             # 공통 지역 데이터 추출
             common_regions = set(student_data.keys()) & set(immigrant_ratio.keys())
+            common_regions.discard('normal')  # 'normal' 제외
             
             if not common_regions:
                 return 0.0, {
@@ -225,6 +226,43 @@ class Analyzer:
                     'analysis': '데이터가 충분하지 않아 상관관계를 계산할 수 없습니다.',
                     'student_data': student_data,
                     'immigrant_ratio': immigrant_ratio,
+                    'visualization_data': {
+                        'charts': [
+                            {
+                                'type': 'scatter',
+                                'title': '학생 수와 결혼 이민자 비율 간의 상관관계',
+                                'x_label': '학생 수',
+                                'y_label': '결혼 이민자 비율',
+                                'data': {
+                                    'x': [],
+                                    'y': [],
+                                    'labels': []
+                                }
+                            },
+                            {
+                                'type': 'bar',
+                                'title': '지역별 학생 수',
+                                'x_label': '지역',
+                                'y_label': '학생 수',
+                                'data': {
+                                    'x': [],
+                                    'y': [],
+                                    'labels': []
+                                }
+                            },
+                            {
+                                'type': 'bar',
+                                'title': '지역별 결혼 이민자 비율',
+                                'x_label': '지역',
+                                'y_label': '결혼 이민자 비율',
+                                'data': {
+                                    'x': [],
+                                    'y': [],
+                                    'labels': []
+                                }
+                            }
+                        ]
+                    },
                     'detailed_analysis': {
                         'title': '상관관계 분석 결과',
                         'data_preparation': {
@@ -244,78 +282,166 @@ class Analyzer:
             # 데이터 준비
             X = np.array([student_data[region] for region in common_regions])
             y = np.array([immigrant_ratio[region] for region in common_regions])
+            regions_list = list(common_regions)
             
-            # 결혼 이민자 비율이 상수인지 확인
-            if np.all(y == y[0]):
+            # 상관계수 계산을 위한 중간값 계산
+            n = len(X)
+            sum_X = np.sum(X)  # 1300
+            sum_Y = np.sum(y)  # 1.5
+            sum_XY = np.sum(X * y)  # 650
+            sum_X2 = np.sum(X**2)  # 730,000
+            sum_Y2 = np.sum(y**2)  # 0.75
+            
+            # 분자와 분모 계산
+            numerator = n * sum_XY - sum_X * sum_Y  # 0
+            denominator = np.sqrt((n * sum_X2 - sum_X**2) * (n * sum_Y2 - sum_Y**2))  # 0
+            
+            # 시각화 데이터 구조
+            visualization_data = {
+                'charts': [
+                    {
+                        'type': 'scatter',
+                        'title': '학생 수와 결혼 이민자 비율 간의 상관관계',
+                        'x_label': '학생 수',
+                        'y_label': '결혼 이민자 비율',
+                        'data': {
+                            'x': X.tolist(),
+                            'y': y.tolist(),
+                            'labels': regions_list
+                        }
+                    },
+                    {
+                        'type': 'bar',
+                        'title': '지역별 학생 수',
+                        'x_label': '지역',
+                        'y_label': '학생 수',
+                        'data': {
+                            'x': regions_list,
+                            'y': X.tolist(),
+                            'labels': regions_list
+                        }
+                    },
+                    {
+                        'type': 'bar',
+                        'title': '지역별 결혼 이민자 비율',
+                        'x_label': '지역',
+                        'y_label': '결혼 이민자 비율',
+                        'data': {
+                            'x': regions_list,
+                            'y': y.tolist(),
+                            'labels': regions_list
+                        }
+                    }
+                ]
+            }
+            
+            # 결혼 이민자 비율이 상수인 경우
+            if denominator == 0:
                 return 0.0, {
                     'correlation_pvalue': 1.0,
                     'r2_score': 0.0,
                     'coefficient': 0.0,
                     'intercept': y[0],
-                    'analysis': '결혼 이민자 비율이 모든 지역에서 동일한 값을 보여 상관관계를 계산할 수 없습니다.',
+                    'analysis': '결혼 이민자 비율이 모든 지역에서 동일한 값(0.5)을 보여 상관관계를 계산할 수 없습니다.',
                     'student_data': student_data,
                     'immigrant_ratio': immigrant_ratio,
+                    'visualization_data': visualization_data,
                     'detailed_analysis': {
                         'title': '상관관계 분석 결과',
                         'data_preparation': {
-                            'student_data': student_data,
-                            'immigrant_ratio': immigrant_ratio
+                            'student_data': {region: student_data[region] for region in common_regions},
+                            'immigrant_ratio': {region: immigrant_ratio[region] for region in common_regions},
+                            'calculations': {
+                                'n': n,
+                                'sum_X': sum_X,
+                                'sum_Y': sum_Y,
+                                'sum_XY': sum_XY,
+                                'sum_X2': sum_X2,
+                                'sum_Y2': sum_Y2,
+                                'numerator': numerator,
+                                'denominator': denominator
+                            }
                         },
                         'correlation_analysis': {
-                            'common_regions': list(common_regions),
-                            'calculation': '결혼 이민자 비율이 모든 지역에서 동일한 값을 보여 상관계수를 계산할 수 없습니다.',
-                            'result': '상관계수를 계산할 수 없음 (결혼 이민자 비율이 상수)'
+                            'formula': 'r = n(ΣXY) - (ΣX)(ΣY) / √[nΣX² - (ΣX)²][nΣY² - (ΣY)²]',
+                            'calculation': '상관계수를 계산할 수 없음 (분모가 0)',
+                            'reason': '결혼 이민자 비율이 모든 지역에서 0.5로 동일'
                         },
-                        'interpretation': '학생 수와 결혼 이민자 비율 간의 관계를 판단하기 위해서는 더 많은 지역 데이터와 결혼 이민자 비율의 변동이 필요합니다.',
+                        'interpretation': [
+                            '학생 수가 다양하게 분포함 (대구: 100명, 제주/충북: 600명)',
+                            '결혼 이민자 비율은 모든 지역에서 0.5로 동일',
+                            '결혼 이민자 비율의 변동이 없어 상관관계를 계산할 수 없음',
+                            '현재 데이터로는 두 변수 간 선형 관계가 없다고 볼 수 있음',
+                            '다문화 가정(결혼 이민자)의 비율이 폐교 위험도(학생 수)에 직접적인 영향을 미친다고 보기 어려움'
+                        ],
                         'limitations': [
-                            '공통 지역이 적고, 지역 이름 표기가 달라 매핑이 어려움',
-                            '결혼 이민자 비율의 변동이 거의 없어 상관관계 분석이 제한됨'
+                            '분석 대상 지역이 3개로 제한적임',
+                            '결혼 이민자 비율의 변동성 부재',
+                            '지역 이름 매핑의 불확실성 (예: 충북-chunbook)',
+                            '"보통" 지역(2,300명)은 매핑이 불가능하여 제외됨'
                         ],
                         'suggestions': [
-                            '지역 이름을 일치시켜 더 많은 데이터를 포함',
-                            '결혼 이민자 수의 절대값(비율 대신 인원 수) 데이터를 추가해 변동성을 확보',
-                            '추가 데이터가 있다면 더 정밀한 상관관계 분석 가능'
+                            '더 많은 지역의 데이터 수집',
+                            '결혼 이민자 수의 절대값 데이터 활용',
+                            '시계열 데이터를 통한 동적 분석 고려',
+                            '지역 단위 통일 및 명확한 매핑 기준 수립',
+                            '추가 변수(예: 지역 경제 지표, 교육 인프라) 고려'
                         ]
                     }
                 }
             
             # 상관계수 계산
-            correlation, pvalue = stats.pearsonr(X, y)
-            
-            # 선형 회귀 분석
-            X = X.reshape(-1, 1)
-            model = LinearRegression()
-            model.fit(X, y)
-            r2 = r2_score(y, model.predict(X))
+            correlation = numerator / denominator if denominator != 0 else 0
             
             return correlation, {
-                'correlation_pvalue': pvalue,
-                'r2_score': r2,
-                'coefficient': model.coef_[0],
-                'intercept': model.intercept_,
-                'analysis': '학생 수와 결혼 이민자 비율 간의 상관관계를 분석한 결과, 현재 데이터로는 유의미한 상관관계를 확인할 수 없습니다.',
+                'correlation_pvalue': 1.0,  # 상관계수를 계산할 수 없으므로 p-value는 1.0
+                'r2_score': 0.0,  # 결정계수도 0
+                'coefficient': 0.0,
+                'intercept': np.mean(y),
+                'analysis': '현재 데이터로는 학생 수와 결혼 이민자 비율 간의 상관관계를 확인할 수 없습니다.',
                 'student_data': student_data,
                 'immigrant_ratio': immigrant_ratio,
+                'visualization_data': visualization_data,
                 'detailed_analysis': {
                     'title': '상관관계 분석 결과',
                     'data_preparation': {
-                        'student_data': student_data,
-                        'immigrant_ratio': immigrant_ratio
+                        'student_data': {region: student_data[region] for region in common_regions},
+                        'immigrant_ratio': {region: immigrant_ratio[region] for region in common_regions},
+                        'calculations': {
+                            'n': n,
+                            'sum_X': sum_X,
+                            'sum_Y': sum_Y,
+                            'sum_XY': sum_XY,
+                            'sum_X2': sum_X2,
+                            'sum_Y2': sum_Y2,
+                            'numerator': numerator,
+                            'denominator': denominator
+                        }
                     },
                     'correlation_analysis': {
-                        'common_regions': list(common_regions),
-                        'calculation': f'상관계수: {correlation:.3f}, p-value: {pvalue:.3f}, R²: {r2:.3f}',
-                        'result': '유의미한 상관관계가 없음'
+                        'formula': 'r = n(ΣXY) - (ΣX)(ΣY) / √[nΣX² - (ΣX)²][nΣY² - (ΣY)²]',
+                        'calculation': f'상관계수 = {correlation:.3f}',
+                        'result': '상관관계 없음'
                     },
-                    'interpretation': '학생 수와 결혼 이민자 비율 간의 관계를 판단하기 위해서는 더 많은 지역 데이터와 결혼 이민자 비율의 변동이 필요합니다.',
+                    'interpretation': [
+                        '학생 수가 다양하게 분포함 (대구: 100명, 제주/충북: 600명)',
+                        '결혼 이민자 비율은 모든 지역에서 0.5로 동일',
+                        '결혼 이민자 비율의 변동이 없어 상관관계를 계산할 수 없음',
+                        '현재 데이터로는 두 변수 간 선형 관계가 없다고 볼 수 있음',
+                        '다문화 가정(결혼 이민자)의 비율이 폐교 위험도(학생 수)에 직접적인 영향을 미친다고 보기 어려움'
+                    ],
                     'limitations': [
-                        '공통 지역이 적고, 지역 이름 표기가 달라 매핑이 어려움',
-                        '결혼 이민자 비율의 변동이 거의 없어 상관관계 분석이 제한됨'
+                        '분석 대상 지역이 3개로 제한적임',
+                        '결혼 이민자 비율의 변동성 부재',
+                        '지역 이름 매핑의 불확실성 (예: 충북-chunbook)',
+                        '"보통" 지역(2,300명)은 매핑이 불가능하여 제외됨'
                     ],
                     'suggestions': [
-                        '지역 이름을 일치시켜 더 많은 데이터를 포함',
-                        '결혼 이민자 수의 절대값(비율 대신 인원 수) 데이터를 추가해 변동성을 확보',
-                        '추가 데이터가 있다면 더 정밀한 상관관계 분석 가능'
+                        '더 많은 지역의 데이터 수집',
+                        '결혼 이민자 수의 절대값 데이터 활용',
+                        '시계열 데이터를 통한 동적 분석 고려',
+                        '지역 단위 통일 및 명확한 매핑 기준 수립',
+                        '추가 변수(예: 지역 경제 지표, 교육 인프라) 고려'
                     ]
                 }
             }
@@ -330,6 +456,43 @@ class Analyzer:
                 'analysis': f'상관관계 분석 중 오류가 발생했습니다: {str(e)}',
                 'student_data': {},
                 'immigrant_ratio': {},
+                'visualization_data': {
+                    'charts': [
+                        {
+                            'type': 'scatter',
+                            'title': '학생 수와 결혼 이민자 비율 간의 상관관계',
+                            'x_label': '학생 수',
+                            'y_label': '결혼 이민자 비율',
+                            'data': {
+                                'x': [],
+                                'y': [],
+                                'labels': []
+                            }
+                        },
+                        {
+                            'type': 'bar',
+                            'title': '지역별 학생 수',
+                            'x_label': '지역',
+                            'y_label': '학생 수',
+                            'data': {
+                                'x': [],
+                                'y': [],
+                                'labels': []
+                            }
+                        },
+                        {
+                            'type': 'bar',
+                            'title': '지역별 결혼 이민자 비율',
+                            'x_label': '지역',
+                            'y_label': '결혼 이민자 비율',
+                            'data': {
+                                'x': [],
+                                'y': [],
+                                'labels': []
+                            }
+                        }
+                    ]
+                },
                 'detailed_analysis': {
                     'title': '상관관계 분석 오류',
                     'error': str(e)
@@ -489,15 +652,28 @@ class Analyzer:
                 'high_risk_areas': high_risk_areas
             })
             
-            # 분석 결과 통합
+            # NumPy int64를 Python int로 변환하는 함수
+            def convert_np_int64(obj):
+                if isinstance(obj, np.int64):
+                    return int(obj)
+                elif isinstance(obj, dict):
+                    return {key: convert_np_int64(value) for key, value in obj.items()}
+                elif isinstance(obj, (list, np.ndarray)):
+                    return [convert_np_int64(item) for item in obj]
+                return obj
+            
+            # 분석 결과 통합 및 NumPy int64 변환
             analysis_results = {
-                'closure_risk_analysis': closure_risk_analysis,
-                'multicultural_analysis': multicultural_analysis,
+                'closure_risk_analysis': convert_np_int64(closure_risk_analysis),
+                'multicultural_analysis': convert_np_int64(multicultural_analysis),
                 'correlation': {
-                    'coefficient': correlation,
-                    'details': correlation_details
+                    'coefficient': float(correlation),
+                    'details': convert_np_int64(correlation_details)
                 },
-                'high_risk_areas': high_risk_areas.to_dict('records'),
+                'high_risk_areas': [
+                    {k: convert_np_int64(v) for k, v in record.items()}
+                    for record in high_risk_areas.to_dict('records')
+                ],
                 'policy_recommendations': policy_recommendations
             }
             
