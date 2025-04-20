@@ -16,20 +16,8 @@
         <div class="col-md-9">
             <div class="card">
                 <div class="card-body p-0">
-                    <!-- Loading indicator -->
-                    <div id="map-loading" class="text-center p-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-2">지도를 불러오는 중...</p>
-                    </div>
-                    
-                    <!-- Map iframe -->
-                    <iframe id="map-frame" 
-                            src="/static/map.html?t={{ timestamp }}" 
-                            style="width: 100%; height: 800px; border: none; display: none;"
-                            onload="mapLoaded()"
-                            onerror="mapError()"></iframe>
+                    <!-- Map container -->
+                    {{ map_html|safe }}
                 </div>
             </div>
         </div>
@@ -93,28 +81,11 @@
     </div>
 </div>
 
-<script>
-// Function to handle map loading
-function mapLoaded() {
-    const loading = document.getElementById('map-loading');
-    const frame = document.getElementById('map-frame');
-    loading.style.display = 'none';
-    frame.style.display = 'block';
-    console.log('Map loaded successfully');
+<style>
+.leaflet-container {
+    height: 800px;
+    width: 100%;
+    margin: 0 auto;
 }
-
-// Function to handle map loading errors
-function mapError() {
-    const loading = document.getElementById('map-loading');
-    loading.innerHTML = '<div class="alert alert-danger">지도를 불러오는 중 오류가 발생했습니다. 페이지를 새로고침해주세요.</div>';
-    console.error('Error loading map');
-}
-
-// Reload the map iframe when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-    const frame = document.getElementById('map-frame');
-    const timestamp = new Date().getTime();
-    frame.src = `/static/map.html?t=${timestamp}`;
-});
-</script>
+</style>
 {% endblock %} 

@@ -227,8 +227,8 @@
         },
         "correlation_analysis": {
           "common_regions": [
-            "daegu",
-            "jeju"
+            "jeju",
+            "daegu"
           ],
           "calculation": "결혼 이민자 비율이 모든 지역에서 동일한 값을 보여 상관계수를 계산할 수 없습니다.",
           "result": "상관계수를 계산할 수 없음 (결혼 이민자 비율이 상수)"

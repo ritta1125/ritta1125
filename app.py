@@ -16,6 +16,8 @@ import logging
 import anthropic
 from dotenv import load_dotenv
 import time
+from folium.plugins import HeatMap
+import random
 
 # Load environment variables
 load_dotenv()
@@ -312,182 +314,232 @@ def get_kess_data(year):
 @app.route('/closure_risk_map')
 def closure_risk_map():
     try:
-        # Initialize data structures
+        # 지역별 데이터 초기화
         region_data = {}
         heatmap_data = []
         
-        # Map Korean region names to CSV filenames
-        region_to_file = {
-            '강원': 'gangwon.csv',
-            '경기': 'gyeonggi.csv',
-            '경남': 'gyeongnam.csv',
-            '경북': 'gyeongbook.csv',
-            '광주': 'gwangju.csv',
-            '대구': 'daegu.csv',
-            '대전': 'daejeon.csv',
-            '부산': 'busan.csv',
+        # 지역명 매핑
+        region_mapping = {
             '서울': 'seoul.csv',
-            '세종': 'sejong.csv',
-            '울산': 'ulsan.csv',
+            '부산': 'busan.csv',
+            '대구': 'daegu.csv',
             '인천': 'incheon.csv',
-            '전남': 'jeonnam.csv',
-            '전북': 'jeonbook.csv',
-            '제주': 'jeju.csv',
+            '광주': 'gwangju.csv',
+            '대전': 'daejeon.csv',
+            '울산': 'ulsan.csv',
+            '세종': 'sejong.csv',
+            '경기': 'gyeonggi.csv',
+            '강원': 'gangwon.csv',
+            '충북': 'chunbook.csv',
             '충남': 'chunnam.csv',
-            '충북': 'chunbook.csv'
+            '전북': 'jeonbook.csv',
+            '전남': 'jeonnam.csv',
+            '경북': 'gyeongbook.csv',
+            '경남': 'gyeongnam.csv',
+            '제주': 'jeju.csv'
         }
         
-        # Process data for each region
-        for region, filename in region_to_file.items():
-            filepath = os.path.join('data', 'raw', 'location_gone', filename)
-            
-            if not os.path.exists(filepath):
-                logger.warning(f"File not found: {filepath}")
-                continue
-                
+        # 지역별 좌표
+        region_coords = {
+            '서울': [37.5665, 126.9780],
+            '부산': [35.1796, 129.0756],
+            '대구': [35.8714, 128.6014],
+            '인천': [37.4563, 126.7052],
+            '광주': [35.1595, 126.8526],
+            '대전': [36.3504, 127.3845],
+            '울산': [35.5384, 129.3114],
+            '세종': [36.4801, 127.2892],
+            '경기': [37.4138, 127.5183],
+            '강원': [37.8228, 128.3445],
+            '충북': [36.6372, 127.4897],
+            '충남': [36.5184, 126.8000],
+            '전북': [35.8242, 127.1480],
+            '전남': [34.8679, 126.9910],
+            '경북': [36.4919, 128.8889],
+            '경남': [35.4606, 128.2132],
+            '제주': [33.4996, 126.5312]
+        }
+        
+        max_risk_score = 0
+        
+        # 각 지역별 데이터 처리
+        for region_kr, filename in region_mapping.items():
             try:
+                # CSV 파일 읽기
+                file_path = os.path.join('data', 'raw', 'location_gone', filename)
+                if not os.path.exists(file_path):
+                    logging.warning(f"File not found: {file_path}")
+                    continue
+                    
                 # Try reading with UTF-8 first, fall back to CP949 if needed
                 try:
-                    df = pd.read_csv(filepath, encoding='utf-8')
+                    df = pd.read_csv(file_path, encoding='utf-8')
                 except UnicodeDecodeError:
-                    df = pd.read_csv(filepath, encoding='cp949')
+                    df = pd.read_csv(file_path, encoding='cp949')
                 
-                # Ensure 폐교연도 is numeric and handle any conversion errors
-                df['폐교연도'] = pd.to_numeric(df['폐교연도'], errors='coerce')
-                df = df.dropna(subset=['폐교연도'])  # Remove rows with invalid years
-                
-                if df.empty:
-                    logger.warning(f"No valid data for region: {region}")
+                # 폐교연도 처리
+                def extract_year(x):
+                    try:
+                        # 문자열로 변환
+                        x = str(x)
+                        # 숫자만 추출
+                        import re
+                        numbers = re.findall(r'\d+', x)
+                        if numbers:
+                            # 첫 번째 숫자 그룹을 사용
+                            return float(numbers[0])
+                        return None
+                    except:
+                        return None
+
+                if '폐교연도' in df.columns:
+                    df['폐교연도'] = df['폐교연도'].apply(extract_year)
+                    df = df.dropna(subset=['폐교연도'])
+                else:
+                    logging.warning(f"'폐교연도' column not found in {file_path}")
                     continue
                 
-                # Calculate risk metrics
+                if df.empty:
+                    logging.warning(f"No valid data in {file_path}")
+                    continue
+                
+                # 지역별 통계 계산
                 total_closures = len(df)
-                max_year = df['폐교연도'].max()
-                recent_closures = len(df[df['폐교연도'] >= (max_year - 5)])
+                recent_closures = len(df[df['폐교연도'] >= 2020])
                 unused_schools = len(df[df['활용현황'] == '미활용'])
                 
-                # Calculate risk score (weighted average)
-                risk_score = (recent_closures * 0.5 + unused_schools * 0.3 + total_closures * 0.2)
-                
-                # Store region data
-                region_data[region] = {
-                    'total_closures': int(total_closures),  # Convert to integer
-                    'recent_closures': int(recent_closures),  # Convert to integer
-                    'unused_schools': int(unused_schools),  # Convert to integer
-                    'risk_score': float(risk_score)  # Keep as float for heatmap
+                # 지역 데이터 저장
+                region_data[region_kr] = {
+                    'total_closures': total_closures,
+                    'recent_closures': recent_closures,
+                    'unused_schools': unused_schools
                 }
                 
-                # Add coordinates and risk score to heatmap data
-                if region in KOREA_REGIONS:
-                    coords = KOREA_REGIONS[region]
-                    # Add multiple points for the region based on risk score
-                    for _ in range(int(risk_score * 10)):  # Scale the number of points
-                        heatmap_data.append([coords['lat'], coords['lon'], risk_score])
-                        
+                # 위험도 점수 계산 (최근 폐교와 미활용 비율을 고려)
+                risk_score = (recent_closures * 0.6 + unused_schools * 0.4) / total_closures if total_closures > 0 else 0
+                max_risk_score = max(max_risk_score, risk_score)
+                
+                # 히트맵 데이터 추가
+                if region_kr in region_coords:
+                    coords = region_coords[region_kr]
+                    base_lat, base_lng = coords
+                    
+                    # 지역 크기에 따라 포인트 수 조정
+                    region_sizes = {
+                        '경기': 1.2, '강원': 1.2, '경북': 1.2, '경남': 1.1,
+                        '전남': 1.1, '전북': 1.0, '충남': 1.0, '충북': 1.0,
+                        '제주': 0.8, '서울': 0.8, '부산': 0.8, '대구': 0.8,
+                        '인천': 0.8, '광주': 0.8, '대전': 0.8, '울산': 0.8, '세종': 0.8
+                    }
+                    
+                    size_multiplier = region_sizes.get(region_kr, 1.0)
+                    num_points = int((risk_score * 50 + 10) * size_multiplier)
+                    
+                    # 지역 크기에 따라 랜덤 범위 조정
+                    lat_range = 0.5 * size_multiplier
+                    lng_range = 0.5 * size_multiplier
+                    
+                    for _ in range(num_points):
+                        # 좌표에 랜덤성 추가 (정규분포 사용)
+                        lat = base_lat + np.random.normal(0, lat_range/3)
+                        lng = base_lng + np.random.normal(0, lng_range/3)
+                        intensity = risk_score * 100  # 강도를 100배로 스케일업
+                        heatmap_data.append([lat, lng, intensity])
+                
             except Exception as e:
-                logger.error(f"Error processing {region} data: {str(e)}")
+                logging.error(f"Error processing {region_kr} data: {str(e)}")
                 continue
         
-        # Create a Folium map centered on South Korea
-        m = folium.Map(
-            location=[36.5, 127.5],
-            zoom_start=7,
-            tiles='CartoDB positron',
-            control_scale=True
-        )
+        # Folium 지도 생성
+        m = folium.Map(location=[36.5, 127.5], zoom_start=7,
+                      tiles='CartoDB positron')
         
-        # Add heatmap layer with custom gradient
-        if heatmap_data:
-            plugins.HeatMap(heatmap_data, 
-                          radius=25,
-                          blur=15,
-                          max_zoom=17,
-                          gradient={0.0: 'blue', 0.3: 'lime', 0.5: 'yellow', 0.7: 'orange', 1.0: 'red'}).add_to(m)
+        # 히트맵 데이터를 단순 좌표로 변환
+        simple_points = []
+        for region_kr, data in region_data.items():
+            if region_kr in region_coords:
+                coords = region_coords[region_kr]
+                base_lat, base_lng = coords
+                
+                # 위험도 점수 계산
+                risk_score = (data['recent_closures'] * 0.6 + data['unused_schools'] * 0.4) / data['total_closures'] if data['total_closures'] > 0 else 0
+                
+                # 위험도에 따라 포인트 수 조정
+                num_points = int(risk_score * 50) + 5  # 최소 5개, 최대 55개 포인트
+                
+                # 지역 크기에 따른 분포 범위
+                region_sizes = {
+                    '경기': 0.8, '강원': 0.8, '경북': 0.8, '경남': 0.7,
+                    '전남': 0.7, '전북': 0.6, '충남': 0.6, '충북': 0.6,
+                    '제주': 0.4, '서울': 0.3, '부산': 0.3, '대구': 0.3,
+                    '인천': 0.3, '광주': 0.3, '대전': 0.3, '울산': 0.3, '세종': 0.3
+                }
+                
+                spread = region_sizes.get(region_kr, 0.5)
+                
+                # 포인트 생성
+                for _ in range(num_points):
+                    lat = base_lat + (random.random() - 0.5) * spread
+                    lng = base_lng + (random.random() - 0.5) * spread
+                    simple_points.append([lat, lng])
         
-        # Add markers for each region
-        for region, coords in KOREA_REGIONS.items():
-            if region in region_data:
-                data = region_data[region]
+        # 히트맵 추가
+        if simple_points:
+            gradient = {
+                '0.0': '#3288bd',  # 파란색 (낮은 위험)
+                '0.3': '#99d594',  # 연두색
+                '0.5': '#fee08b',  # 노란색
+                '0.7': '#fc8d59',  # 주황색
+                '1.0': '#d53e4f'   # 빨간색 (높은 위험)
+            }
+            
+            HeatMap(
+                data=simple_points,
+                radius=15,
+                blur=10,
+                min_opacity=0.3,
+                gradient=gradient,
+                use_local_extrema=True
+            ).add_to(m)
+        
+        # 지역별 마커 추가
+        for region, data in region_data.items():
+            if region in region_coords:
+                coords = region_coords[region]
+                # 위험도에 따른 색상 설정
+                risk_score = (data['recent_closures'] * 0.6 + data['unused_schools'] * 0.4) / data['total_closures'] if data['total_closures'] > 0 else 0
+                color = '#d53e4f' if risk_score > 0.5 else '#3288bd'  # 위험도가 높으면 빨간색, 낮으면 파란색
                 
-                # Create popup content
-                popup_content = f"""
-                <div style="font-family: 'Malgun Gothic', sans-serif;">
-                    <h4>{region}</h4>
-                    <p>총 폐교: {data['total_closures']}개</p>
-                    <p>최근 폐교: {data['recent_closures']}개</p>
-                    <p>미활용: {data['unused_schools']}개</p>
-                </div>
-                """
-                
-                # Add circle marker
+                # 마커 생성
                 folium.CircleMarker(
-                    location=[coords['lat'], coords['lon']],
+                    location=coords,
                     radius=15,
-                    popup=folium.Popup(popup_content, max_width=200),
-                    color='#000000',
+                    popup=f"""
+                    <div style="font-family: 'Malgun Gothic', sans-serif;">
+                        <h4>{region}</h4>
+                        <p>총 폐교: {data['total_closures']}개</p>
+                        <p>최근 폐교: {data['recent_closures']}개</p>
+                        <p>미활용: {data['unused_schools']}개</p>
+                    </div>
+                    """,
+                    color=color,
                     fill=True,
-                    fill_color='#000000',
+                    fill_color=color,
                     fill_opacity=0.7,
                     weight=2
                 ).add_to(m)
-                
-                # Add region label
-                folium.map.Marker(
-                    [coords['lat'], coords['lon']],
-                    icon=folium.DivIcon(
-                        html=f'<div style="font-size: 12px; font-weight: bold;">{region}</div>',
-                        icon_size=(100,20),
-                        icon_anchor=(50,0)
-                    )
-                ).add_to(m)
         
-        # Ensure static directory exists
-        os.makedirs(app.static_folder, exist_ok=True)
-        
-        # Save the map to a static file
-        map_path = os.path.join(app.static_folder, 'map.html')
-        m.save(map_path)
-        
-        # Add necessary headers and scripts to the map file
-        with open(map_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        # Add CORS headers and required scripts
-        head_content = """
-        <head>
-            <meta http-equiv="Access-Control-Allow-Origin" content="*">
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-            <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
-            <style>
-                body { margin: 0; padding: 0; }
-                #map { width: 100%; height: 100%; }
-            </style>
-        """
-        
-        content = content.replace('<head>', head_content)
-        
-        with open(map_path, 'w', encoding='utf-8') as f:
-            f.write(content)
-        
-        # Log the region data for debugging
-        logger.info(f"Region data: {region_data}")
-        
-        # Get current timestamp
-        timestamp = int(time.time())
+        # 지도를 HTML로 변환
+        map_html = m._repr_html_()
         
         return render_template('closure_risk_map.html', 
-                            region_data=region_data,
-                            timestamp=timestamp)
-    
+                            map_html=map_html,
+                            region_data=region_data)
+        
     except Exception as e:
-        logger.error(f"Error in closure_risk_map: {str(e)}")
+        logging.error(f"Error in closure_risk_map: {str(e)}")
         return render_template('closure_risk_map.html', 
-                            error=f"Error processing data: {str(e)}",
-                            region_data={},
-                            timestamp=int(time.time()))
+                            error="지도 데이터를 불러오는 중 오류가 발생했습니다.")
 
 @app.route('/multiculture')
 def multiculture_view():
