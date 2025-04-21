@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}정책 제안{% endblock %}
+{% block title %}정책 제안 - 다문화 가정과 폐교 위험도 분석{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="mb-4">{{ policy.title }}</h1>
+    <h1 class="mb-4">폐교 예방 및 지역별 맞춤형 정책</h1>
 
     <!-- 정책 목표 -->
     <div class="card mb-4">
@@ -13,9 +13,9 @@
         </div>
         <div class="card-body">
             <ul class="list-group">
-                {% for goal in policy.goals %}
-                <li class="list-group-item">{{ goal }}</li>
-                {% endfor %}
+                <li class="list-group-item">폐교 위험 완화: 소규모 학교 통합 지원을 통해 폐교 위험을 선제적으로 완화</li>
+                <li class="list-group-item">교육 형평성 제고: 지역별 특성에 맞는 맞춤형 교육 프로그램 개발 및 지원</li>
+                <li class="list-group-item">다문화 포용: 체계적인 다문화 교육 강화로 다문화 가정의 교육 접근성 향상</li>
             </ul>
         </div>
     </div>
@@ -26,21 +26,52 @@
             <h2 class="card-title">정책 세부 방안</h2>
         </div>
         <div class="card-body">
-            {% for section_key, section in policy.details.items() %}
+            <!-- 폐교 예방 정책 -->
             <div class="mb-4">
-                <h3>{{ section.title }}</h3>
-                {% for item in section.items %}
+                <h3>폐교 예방 정책</h3>
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h4 class="card-title">{{ item.title }}</h4>
+                        <h4 class="card-title">소규모 학교 통합 지원 강화</h4>
                     </div>
                     <div class="card-body">
-                        <p class="card-text">{{ item.description }}</p>
+                        <p class="card-text">학급당 학생 수가 15명 미만인 초·중·고는 재정·인력 지원 대상에 포함하여 통합 과정을 촉진. 통합 후에는 기존 건물을 현대화하는 시설 개선 예산을 우선 배정하여 교육 여건 격차를 해소. 통합 과정에서 이동이 불가피한 학생과 교사를 위해 교통비 지원, 기숙사 제공, 정착금 지원 등 실질적 보완책을 마련.</p>
                     </div>
                 </div>
-                {% endfor %}
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h4 class="card-title">다문화 교육 체계적 강화</h4>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">다문화 가정 비율이 25% 이상인 지역에는 다문화 교육센터를 설치하여 지역별 특성에 맞는 프로그램을 운영. 전문 다문화 교사를 양성하는 연수 프로그램을 확대하고, 교육 과정에 다문화 이해·소통 역량을 포함한 커리큘럼을 개발·보급하여 모든 학생이 다문화 환경에서 상호 존중과 협력을 학습하도록 함.</p>
+                    </div>
+                </div>
             </div>
-            {% endfor %}
+
+            <!-- 도시형 지역 정책 -->
+            <div class="mb-4">
+                <h3>도시형 지역 정책</h3>
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h4 class="card-title">다문화 교육 인프라 확충</h4>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">학교 내 다문화 지원센터 설치 및 다국어 상담서비스를 제공하여 학습·정서적 지원을 강화. 방과후 학교 프로그램을 문화예술·언어교실 등으로 다양화하여 다문화 학생과 일반 학생 간 교류를 촉진. 지역사회 기관(박물관·도서관·복지관 등)과 연계한 교육 프로그램을 개발하여 학교 외 학습 기회를 확대.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 농촌형 지역 정책 -->
+            <div class="mb-4">
+                <h3>농촌형 지역 정책</h3>
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h4 class="card-title">소규모 학교 특화 프로그램 개발</h4>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">마을 자원(농업·수산업·지역문화)과 연계한 프로젝트 기반 학습을 도입하여 지역 정체성을 살리고 학생 흥미를 높임. ICT 기반 원격교육 시스템을 구축하여 우수 강사를 확보하고, 다양한 과목·프로그램을 온라인으로 제공. 지역 특성화 교육과정을 운영하여 인구 감소와 산업 구조 변화에 대응하는 인재를 육성.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -51,9 +82,10 @@
         </div>
         <div class="card-body">
             <ul class="list-group">
-                {% for effect in policy.expected_effects %}
-                <li class="list-group-item">{{ effect }}</li>
-                {% endfor %}
+                <li class="list-group-item">폐교 위험 완화: 소규모 학교 통합 지원으로 폐교 위험을 선제적으로 완화</li>
+                <li class="list-group-item">교육 형평성 제고: 지역별 맞춤형 정책으로 교육 격차 해소</li>
+                <li class="list-group-item">다문화 포용: 체계적인 다문화 교육으로 다문화 가정의 교육 접근성 향상</li>
+                <li class="list-group-item">지역 특성화: 도시·농촌 지역의 특성에 맞는 교육 프로그램으로 지역 정체성 강화</li>
             </ul>
         </div>
     </div>
@@ -71,7 +103,7 @@
                             <h4 class="card-title">재정 지원</h4>
                         </div>
                         <div class="card-body">
-                            <p class="card-text">{{ policy.implementation.budget }}</p>
+                            <p class="card-text">교육부 및 지자체 예산 투입(연간 30억 원 규모)</p>
                         </div>
                     </div>
                 </div>
@@ -81,7 +113,7 @@
                             <h4 class="card-title">운영 주체</h4>
                         </div>
                         <div class="card-body">
-                            <p class="card-text">{{ policy.implementation.operation }}</p>
+                            <p class="card-text">교육부가 정책 총괄, 시도교육청이 세부 프로그램 운영</p>
                         </div>
                     </div>
                 </div>
@@ -91,7 +123,7 @@
                             <h4 class="card-title">성과 평가</h4>
                         </div>
                         <div class="card-body">
-                            <p class="card-text">{{ policy.implementation.evaluation }}</p>
+                            <p class="card-text">폐교 감소율, 다문화 교육 참여율, 지역별 교육 만족도 등을 KPI로 설정</p>
                         </div>
                     </div>
                 </div>

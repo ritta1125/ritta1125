@@ -20,21 +20,28 @@ from folium.plugins import HeatMap
 import random
 
 # Load environment variables
-load_dotenv()
+load_dotenv(override=True)  # override=True를 추가하여 기존 환경 변수를 덮어쓰도록 함
+
+# 로깅 설정
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Check if API key exists
 api_key = os.getenv('ANTHROPIC_API_KEY')
 if not api_key:
     logger.warning("ANTHROPIC_API_KEY not found in environment variables. Chat functionality will be disabled.")
+else:
+    logger.info("ANTHROPIC_API_KEY found. Chat functionality is enabled.")
 
 # Initialize Claude client only if API key exists
 claude_client = None
 if api_key:
-    claude_client = anthropic.Anthropic(api_key=api_key)
-
-# 로깅 설정
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+    try:
+        claude_client = anthropic.Anthropic(api_key=api_key)
+        logger.info("Claude client initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize Claude client: {str(e)}")
+        claude_client = None
 
 app = Flask(__name__, static_folder='static')
 app.config['SECRET_KEY'] = 'your-secret-key-here'  # Change this in production
