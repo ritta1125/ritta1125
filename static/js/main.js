@@ -162,68 +162,71 @@ function hideLoading(element) {
 document.addEventListener('DOMContentLoaded', function() {
     const chatMessages = document.getElementById('chat-messages');
     const chatInput = document.getElementById('chat-input');
-
-    // Function to add a message to the chat
-    function addMessage(content, isUser = false) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = isUser ? 'user-message' : 'assistant-message';
-        
-        // Create message content with proper formatting
-        const messageContent = document.createElement('div');
-        messageContent.className = 'message-content';
-        messageContent.textContent = content;
-        
-        messageDiv.appendChild(messageContent);
-        chatMessages.appendChild(messageDiv);
-        
-        // Scroll to the bottom
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    // Function to send message to Claude API
-    async function sendMessage(message) {
-        try {
-            // Show loading state
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'assistant-message loading';
-            loadingDiv.textContent = '...';
-            chatMessages.appendChild(loadingDiv);
+    
+    // Only initialize chat if both elements exist
+    if (chatMessages && chatInput) {
+        // Function to add a message to the chat
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isUser ? 'user-message' : 'assistant-message';
+            
+            // Create message content with proper formatting
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.textContent = content;
+            
+            messageDiv.appendChild(messageContent);
+            chatMessages.appendChild(messageDiv);
+            
+            // Scroll to the bottom
             chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            const response = await fetch('/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message: message })
-            });
-
-            // Remove loading state
-            chatMessages.removeChild(loadingDiv);
-
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-
-            const data = await response.json();
-            if (data.error) {
-                addMessage('오류가 발생했습니다: ' + data.error, false);
-            } else {
-                addMessage(data.response, false);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            addMessage('죄송합니다. 오류가 발생했습니다.', false);
         }
+
+        // Function to send message to Claude API
+        async function sendMessage(message) {
+            try {
+                // Show loading state
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'assistant-message loading';
+                loadingDiv.textContent = '...';
+                chatMessages.appendChild(loadingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                // Remove loading state
+                chatMessages.removeChild(loadingDiv);
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                if (data.error) {
+                    addMessage('오류가 발생했습니다: ' + data.error, false);
+                } else {
+                    addMessage(data.response, false);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('죄송합니다. 오류가 발생했습니다.', false);
+            }
+        }
+
+        // Handle chat input
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && chatInput.value.trim()) {
+                const message = chatInput.value.trim();
+                addMessage(message, true);
+                sendMessage(message);
+                chatInput.value = '';
+            }
+        });
     }
-
-    // Handle chat input
-    chatInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && chatInput.value.trim()) {
-            const message = chatInput.value.trim();
-            addMessage(message, true);
-            sendMessage(message);
-            chatInput.value = '';
-        }
-    });
 }); 
