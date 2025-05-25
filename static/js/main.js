@@ -2,6 +2,11 @@
 let map;
 let markers = [];
 
+// Set the base URL for API calls
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? 'http://localhost:5000' 
+    : 'https://ritta1125.github.io';
+
 // 페이지 로드 시 초기화
 $(document).ready(function() {
     // 지도 초기화
@@ -25,7 +30,7 @@ function initMap() {
 // 데이터 로드
 function loadData() {
     // 분석 데이터 로드
-    $.get('/api/analysis', function(data) {
+    $.get(API_BASE_URL + '/api/analysis', function(data) {
         updateDashboard(data);
     }).fail(function(error) {
         console.error('데이터 로드 실패:', error);
@@ -33,7 +38,7 @@ function loadData() {
     });
     
     // 시각화 데이터 로드
-    $.get('/api/visualization', function(data) {
+    $.get(API_BASE_URL + '/api/visualization', function(data) {
         updateVisualizations(data);
     }).fail(function(error) {
         console.error('시각화 데이터 로드 실패:', error);
@@ -160,48 +165,61 @@ function hideLoading(element) {
 
 // Chat functionality
 document.addEventListener('DOMContentLoaded', function() {
+    const chatWidget = document.getElementById('chat-widget');
     const chatMessages = document.getElementById('chat-messages');
     const chatInput = document.getElementById('chat-input');
+    const sendButton = document.getElementById('send-button');
+    const toggleButton = document.getElementById('toggle-chat');
+    const chatContainer = document.getElementById('chat-container');
     
-    // Only initialize chat if both elements exist
-    if (chatMessages && chatInput) {
-        // Function to add a message to the chat
+    // Only initialize chat if all elements exist
+    if (chatWidget && chatMessages && chatInput && sendButton && toggleButton && chatContainer) {
+        let isCollapsed = false;
+
+        // Toggle chat visibility
+        toggleButton.addEventListener('click', function() {
+            isCollapsed = !isCollapsed;
+            chatContainer.style.display = isCollapsed ? 'none' : 'flex';
+            toggleButton.textContent = isCollapsed ? '+' : '-';
+        });
+
+        // Send message on button click
+        sendButton.addEventListener('click', function() {
+            const message = chatInput.value.trim();
+            if (message) {
+                addMessage(message, true);
+                sendMessage(message);
+                chatInput.value = '';
+            }
+        });
+
+        // Send message on Enter key
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && chatInput.value.trim()) {
+                const message = chatInput.value.trim();
+                addMessage(message, true);
+                sendMessage(message);
+                chatInput.value = '';
+            }
+        });
+
         function addMessage(content, isUser = false) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = isUser ? 'user-message' : 'assistant-message';
-            
-            // Create message content with proper formatting
-            const messageContent = document.createElement('div');
-            messageContent.className = 'message-content';
-            messageContent.textContent = content;
-            
-            messageDiv.appendChild(messageContent);
+            messageDiv.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
+            messageDiv.textContent = content;
             chatMessages.appendChild(messageDiv);
-            
-            // Scroll to the bottom
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // Function to send message to Claude API
         async function sendMessage(message) {
             try {
-                // Show loading state
-                const loadingDiv = document.createElement('div');
-                loadingDiv.className = 'assistant-message loading';
-                loadingDiv.textContent = '...';
-                chatMessages.appendChild(loadingDiv);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-
-                const response = await fetch('/chat', {
+                const response = await fetch(API_BASE_URL + '/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ message: message })
                 });
-
-                // Remove loading state
-                chatMessages.removeChild(loadingDiv);
 
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -218,15 +236,5 @@ document.addEventListener('DOMContentLoaded', function() {
                 addMessage('죄송합니다. 오류가 발생했습니다.', false);
             }
         }
-
-        // Handle chat input
-        chatInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && chatInput.value.trim()) {
-                const message = chatInput.value.trim();
-                addMessage(message, true);
-                sendMessage(message);
-                chatInput.value = '';
-            }
-        });
     }
 }); 
